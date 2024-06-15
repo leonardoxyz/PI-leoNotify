@@ -1,36 +1,36 @@
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
 
 export default function Footer() {
     return (
         <footer className="bg-gray-100 p-6 md:py-12 w-full dark:bg-gray-800">
-            <div className="container max-w-7xl flex items-center justify-between">
-                <Link href="#" className="flex items-center">
+            <div className="container max-w-7xl mx-auto flex items-center justify-between">
+                <Link to="/" className="flex items-center">
                     <MountainIcon className="h-6 w-6" />
                 </Link>
                 <nav>
                     <ul className="flex items-center space-x-4 text-sm">
                         <li>
-                            <Link href="/posts/categories/Agriculture" className="hover:underline">
+                            <Link to="/posts/categories/Agriculture" className="hover:underline">
                                 Agriculture
                             </Link>
                         </li>
                         <li>
-                            <Link href="/posts/categories/Business" className="hover:underline">
+                            <Link to="/posts/categories/Business" className="hover:underline">
                                 Business
                             </Link>
                         </li>
                         <li>
-                            <Link href="/posts/categories/Education" className="hover:underline">
+                            <Link to="/posts/categories/Education" className="hover:underline">
                                 Education
                             </Link>
                         </li>
                         <li>
-                            <Link href="/posts/categories/Entertainment" className="hover:underline">
+                            <Link to="/posts/categories/Entertainment" className="hover:underline">
                                 Entertainment
                             </Link>
                         </li>
                         <li>
-                            <Link href="/posts/categories/Weather" className="hover:underline">
+                            <Link to="/posts/categories/Weather" className="hover:underline">
                                 Weather
                             </Link>
                         </li>
@@ -38,7 +38,7 @@ export default function Footer() {
                 </nav>
             </div>
         </footer>
-    )
+    );
 }
 
 function MountainIcon(props) {
@@ -57,5 +57,5 @@ function MountainIcon(props) {
         >
             <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
         </svg>
-    )
+    );
 }

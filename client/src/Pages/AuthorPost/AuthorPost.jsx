@@ -5,7 +5,7 @@ import PostItem from '@/components/PostItem/PostItem';
 const AuthorPost = () => {
     const [posts, setPosts] = useState(DUMMY_POSTS);
     return (
-        <div className="flex flex flex-col min-h-screen">
+        <div className="flex flex-col min-h-screen">
             {posts.length > 0 ? <div className="container grid grid-cols-3 gap-16">
                 {posts.map(({ id, thumbnail, category, title, desc, authorID }) => {
                     return (

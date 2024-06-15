@@ -9,12 +9,13 @@ import Detail from './Pages/Detail/Detail';
 import Register from './Pages/Register/Register';
 import Login from './Pages/Login/Login';
 import Profile from './Pages/Profile/Profile';
-import Author from './Pages/Author/Author';
+import Author from './Pages/Authors/Authors';
 import CreatePost from './Pages/Create/CreatePost';
 import CategoryPosts from './Pages/Category/CategoryPosts';
 import AuthorPost from './Pages/AuthorPost/AuthorPost';
 import Dashboard from './Pages/Dashboard/Dashboard';
 import EditPost from './Pages/Edit/EditPost';
+import DeletePost from './Pages/Delete/DeletePost';
 import Logout from './Pages/Logout/Logout';
 
 const router = createBrowserRouter([
@@ -34,6 +35,7 @@ const router = createBrowserRouter([
       { path: "posts/users/:id", element: <AuthorPost /> },
       { path: "myposts/:id", element: <Dashboard /> },
       { path: "posts/:id/edit", element: <EditPost /> },
+      { path: "posts/:id/delete", element: <DeletePost /> },
       { path: "logout", element: <Logout /> },
     ]
   }

@@ -19,7 +19,7 @@ const Register = () => {
         })
     }
     return (
-        <div className='flex flex-col min-h-screen items-center justify-center'>
+        <div className='flex flex-col items-center justify-center'>
             <div className="mx-auto max-w-md space-y-6 py-12">
                 <div className="space-y-2 text-center">
                     <h1 className="text-3xl font-bold">Create an Account</h1>
@@ -47,7 +47,7 @@ const Register = () => {
                     <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white">
                         Create Account
                     </Button>
-                    <p className='p-4 bg-red-500 rounded-md text-2xl font-medium justify-center items-center flex'>This is a wrong message!</p>
+                    <p className='text-red-500'>This is a wrong message!</p>
                     <div className='flex items-center justify-center'>
                         <small>Already have an account?&ensp;</small>
                         <Link className='font-bold text-blue-500' to="/login">SIGN IN</Link>
