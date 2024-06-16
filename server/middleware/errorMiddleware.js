@@ -1,15 +1,15 @@
 const notFound = (req, res, next) => {
-    const error = new Error(`Not Found - ${req.originalUrl}`)
-    res.status(404)
-    next(error)
-}
+    const error = new Error(`Not Found - ${req.originalUrl}`);
+    res.status(404);
+    next(error);
+};
 
 const errorMiddleware = (error, req, res, next) => {
-    if (res.headerSent) {
-        return next(error)
+    if (res.headersSent) {
+        return next(error);
     }
 
-    res.status(error.code || 500).json({ message: error.message || "Internal Server Error" })
-}
+    res.status(error.status || 500).json({ error: error.message || "Internal Server Error" });
+};
 
-module.exports = { notFound, errorMiddleware }
+module.exports = { notFound, errorMiddleware };

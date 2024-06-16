@@ -1,17 +1,20 @@
 import { Button } from '@/components/ui/button';
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { UserContext } from '@/context/userContext';
+import { useNavigate } from 'react-router-dom';
 
 const CreatePost = () => {
     const [title, setTitle] = useState('');
     const [category, setCategory] = useState('Uncategorized');
     const [desc, setDesc] = useState('');
     const [thumbnail, setThumbnail] = useState('');
+    const navigate = useNavigate();
 
     const modules = {
         toolbar: [
@@ -54,9 +57,17 @@ const CreatePost = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Handle form submission logic here
         console.log("Form submitted!");
     };
+
+    const { currentUser } = useContext(UserContext);
+    const token = currentUser?.token;
+
+    useEffect(() => {
+        if(!token) {
+            navigate('/login')
+        }
+    }, [])
 
     return (
         <div className='flex min-h-screen items-center justify-center'>

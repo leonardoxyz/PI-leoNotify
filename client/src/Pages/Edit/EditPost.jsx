@@ -1,11 +1,13 @@
 import { Button } from '@/components/ui/button';
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useNavigate } from 'react-router-dom';
+import { UserContext } from '@/context/userContext';
 
 const EditPost = () => {
     const [title, setTitle] = useState('');
@@ -56,6 +58,16 @@ const EditPost = () => {
         e.preventDefault();
         console.log("Form submitted!");
     };
+
+    const navigate = useNavigate();
+    const { currentUser } = useContext(UserContext);
+    const token = currentUser?.token;
+
+    useEffect(() => {
+        if (!token) {
+            navigate('/login')
+        }
+    }, [])
 
     return (
         <div className='flex min-h-screen items-center justify-center'>

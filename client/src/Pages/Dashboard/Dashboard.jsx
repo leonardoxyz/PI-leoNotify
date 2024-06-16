@@ -1,14 +1,21 @@
 import { DUMMY_POSTS } from '@/data';
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import Thumbnail1 from '../../assets/blog1.jpg';
-import Thumbnail2 from '../../assets/blog2.jpg';
-import Thumbnail3 from '../../assets/blog3.jpg';
-import Thumbnail4 from '../../assets/blog4.jpg';
+import { UserContext } from '@/context/userContext';
 
 const Dashboard = () => {
     const [posts, setPosts] = useState(DUMMY_POSTS);
+
+    const navigate = useNavigate();
+    const { currentUser } = useContext(UserContext);
+    const token = currentUser?.token;
+
+    useEffect(() => {
+        if (!token) {
+            navigate('/login')
+        }
+    }, [])
 
     return (
         <>

@@ -10,38 +10,40 @@ const path = require("path")
 const registerUser = async (req, res, next) => {
     try {
         const { name, email, password, password2 } = req.body;
+
         if (!name || !email || !password) {
-            return next(new HttpError("All fields are required", 422))
+            throw new HttpError("All fields are required", 422);
         }
 
         const newEmail = email.toLowerCase();
 
-        const emailExists = await User.findOne({ email: newEmail })
+        const emailExists = await User.findOne({ email: newEmail });
         if (emailExists) {
-            return next(new HttpError("Email already exists", 422))
+            throw new HttpError("Email already exists", 422);
         }
 
-        if ((password.trim()).length < 6) {
-            return next(new HttpError("Password must be at least 6 characters", 422))
+        if (password.trim().length < 6) {
+            throw new HttpError("Password must be at least 6 characters", 422);
         }
 
         if (password !== password2) {
-            return next(new HttpError("Passwords do not match", 422))
+            throw new HttpError("Passwords do not match", 422);
         }
 
-        const salt = await bcrypt.genSalt(10)
-        const hashedPassword = await bcrypt.hash(password, salt)
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
         const newUser = await User.create({
             name,
             email: newEmail,
             password: hashedPassword
-        })
-        res.status(201).json(newUser);
+        });
 
+        res.status(201).json({ success: true, user: newUser });
     } catch (error) {
-        return next(new HttpError("Registration failed, please try again", 422))
+        next(new HttpError(error.message || "Registration failed, please try again", error.status || 500));
     }
-}
+};
 
 const loginUser = async (req, res, next) => {
     try {
