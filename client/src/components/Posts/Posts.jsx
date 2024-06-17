@@ -1,13 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PostItem from '../PostItem/PostItem';
-import Thumbnail1 from '../../assets/blog1.jpg';
-import Thumbnail2 from '../../assets/blog2.jpg';
-import Thumbnail3 from '../../assets/blog3.jpg';
-import Thumbnail4 from '../../assets/blog4.jpg';
-import { DUMMY_POSTS } from '@/data';
 import Loader from '../Loader/Loader';
 import axios from 'axios';
-
 
 const Posts = () => {
     const [posts, setPosts] = useState([])
@@ -34,7 +28,7 @@ const Posts = () => {
 
     return (
         <div className="container">
-            {posts.length > 0 ? <div className="container grid grid-cols-3 gap-16">
+            {posts.length > 0 ? <div className="container grid grid-cols-3 gap-16 ">
                 {posts.map(({ _id: id, thumbnail, category, title, desc, creator, authorID, createdAt }) => {
                     return (
                         <PostItem
@@ -49,7 +43,7 @@ const Posts = () => {
                         />
                     );
                 })}
-            </div> : <div className='container flex justify-center items-center min-h-screen'>
+            </div> : <div className='container flex flex-col justify-center items-center'>
                 <h1 className='font-bold text-4xl uppercase'>No posts found </h1>
             </div>}
         </div>

@@ -18,6 +18,7 @@ import EditPost from './Pages/Edit/EditPost';
 import DeletePost from './Pages/Delete/DeletePost';
 import Logout from './Pages/Logout/Logout';
 import UserProvider from './context/userContext';
+import { Toaster } from 'react-hot-toast';
 
 const router = createBrowserRouter([
   {
@@ -45,6 +46,7 @@ const router = createBrowserRouter([
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+    <Toaster position="top-right" reverseOrder={false} />
     <RouterProvider router={router} />
   </React.StrictMode>
 );

@@ -18,7 +18,7 @@ const Authors = () => {
     const [authors, setAuthors] = useState(authorsData);
 
     return (
-        <div className='flex min-h-screen items-center justify-center gap-8'>
+        <div className='flex items-center justify-center gap-8'>
             {authors.length > 0 ? (
                 <div className="flex flex-wrap justify-center gap-8">
                     {authors.map(({ id, avatar, name, posts }) => (

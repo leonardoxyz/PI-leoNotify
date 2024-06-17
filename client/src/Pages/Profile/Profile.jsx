@@ -30,7 +30,6 @@ const Profile = () => {
         }
     }, [])
 
-
     return (
         <div className="flex min-h-screen items-center justify-center">
             <Card className="w-full max-w-md mx-auto">
@@ -43,8 +42,8 @@ const Profile = () => {
                     </Link>
                 </div>
                 <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <div>
+                    <div className="flex flex-col gap-6 items-center justify-between">
+                        <div className='flex flex-col items-center justify-center'>
                             <CardTitle>Update Profile</CardTitle>
                             <CardDescription>Make changes to your profile information.</CardDescription>
                         </div>

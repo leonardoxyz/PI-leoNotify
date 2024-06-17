@@ -70,7 +70,7 @@ const CreatePost = () => {
     }, [])
 
     return (
-        <div className='flex min-h-screen items-center justify-center'>
+        <div className='flex items-center justify-center'>
             <Card className="w-full max-w-md mx-auto">
                 <CardHeader>
                     <CardTitle>Create New Topic</CardTitle>
