@@ -24,7 +24,6 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <UserProvider><Layout /></UserProvider>,
-    errorElement: <ErrorPage />,
     children: [
       { index: true, element: <Home /> },
       { path: "posts/:id", element: <Detail /> },
@@ -39,6 +38,7 @@ const router = createBrowserRouter([
       { path: "posts/:id/edit", element: <EditPost /> },
       { path: "posts/:id/delete", element: <DeletePost /> },
       { path: "logout", element: <Logout /> },
+      { path: "*", element: <ErrorPage /> },
     ]
   }
 ]);

@@ -129,10 +129,10 @@ export default function Header() {
                     {currentUser && (
                         <div className="ml-auto flex gap-2">
                             <Link to={`/profile/${currentUser.id}`}>
-                            <Avatar>
-                                <AvatarImage src={`http://localhost:5510/uploads/${author.avatar}`} />
-                                <AvatarFallback>{currentUser.name[0]}</AvatarFallback>
-                            </Avatar></Link>
+                                <Avatar>
+                                    <AvatarImage src={`http://localhost:5510/uploads/${author.avatar}`} />
+                                    <AvatarFallback>{currentUser.name[0]}</AvatarFallback>
+                                </Avatar></Link>
                         </div>
                     )}
                 </header>

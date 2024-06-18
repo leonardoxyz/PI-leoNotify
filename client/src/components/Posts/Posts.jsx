@@ -44,7 +44,7 @@ const Posts = () => {
                     );
                 })}
             </div> : <div className='container flex flex-col justify-center items-center'>
-                <h1 className='font-bold text-4xl uppercase'>No posts found </h1>
+                <h1 className='font-bold text-4xl uppercase'>No posts found</h1>
             </div>}
         </div>
     );

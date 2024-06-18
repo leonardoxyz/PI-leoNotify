@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { DUMMY_POSTS } from '@/data';
 import PostItem from '@/components/PostItem/PostItem';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -13,15 +12,16 @@ const AuthorPost = () => {
     useEffect(() => {
         const fetchPosts = async () => {
             setIsLoading(true);
-        };
-        try {
-            const res = axios.get(`http://localhost:5510/api/posts/categories/${category}`)
-            setPosts(res?.data)
-        } catch (error) {
-            console.log(error)
+            try {
+                const res = await axios.get(`http://localhost:5510/api/posts/categories/${category}`);
+                setPosts(res.data);
+            } catch (error) {
+                console.error("Error fetching posts:", error);
+            }
+            setIsLoading(false);
         }
         fetchPosts();
-    }, [category])
+    }, [category]);
     return (
         <div className="flex flex-col min-h-screen">
             {posts.length > 0 ? <div className="container grid grid-cols-3 gap-16">
@@ -39,7 +39,7 @@ const AuthorPost = () => {
                     );
                 })}
             </div> : <div className='container flex justify-center items-center min-h-screen'>
-                <h1 className='font-bold text-4xl uppercase'>No posts found </h1>
+                <h1 className='font-bold text-4xl uppercase'>No posts found</h1>
             </div>}
         </div>
     )
