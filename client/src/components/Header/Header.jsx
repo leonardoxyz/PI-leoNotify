@@ -1,14 +1,32 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { NavigationMenu, NavigationMenuList, NavigationMenuLink } from '@/components/ui/navigation-menu';
 import { UserContext } from '@/context/userContext';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import axios from 'axios';
 
 export default function Header() {
     const { currentUser } = useContext(UserContext);
     const [author, setAuthor] = useState({});
+
+    useEffect(() => {
+        const fetchCurrentUser = async () => {
+            if (!currentUser?.id) {
+                return;
+            }
+
+            try {
+                const res = await axios.get(`http://localhost:5510/api/users/${currentUser.id}`);
+                setAuthor(res?.data);
+            } catch (error) {
+                console.error("Error fetching current user:", error);
+            }
+        }
+        fetchCurrentUser();
+    }, [currentUser]);
 
     return (
         <>
@@ -33,9 +51,6 @@ export default function Header() {
                                         </Link>
                                         <Link to="/authors" className="flex w-full items-center py-2 text-lg font-semibold">
                                             Authors
-                                        </Link>
-                                        <Link to="/logout" className="flex w-full items-center py-2 text-lg font-semibold">
-                                            Logout
                                         </Link>
                                     </div>
                                 </SheetContent>
@@ -82,12 +97,6 @@ export default function Header() {
                                         Authors
                                     </Link>
                                 </NavigationMenuLink>
-                                <NavigationMenuLink asChild>
-                                    <Link
-                                        to="/logout">
-                                        <Button>Logout</Button>
-                                    </Link>
-                                </NavigationMenuLink>
                             </NavigationMenuList>
                         </NavigationMenu>
                     )}
@@ -96,7 +105,6 @@ export default function Header() {
                             <NavigationMenu className="hidden lg:flex">
                                 <NavigationMenuList>
                                     <NavigationMenuLink asChild>
-
                                         <Link
                                             to="/"
                                             className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
@@ -105,7 +113,6 @@ export default function Header() {
                                         </Link>
                                     </NavigationMenuLink>
                                     <NavigationMenuLink asChild>
-
                                         <Link
                                             to="/authors"
                                             className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
@@ -126,20 +133,42 @@ export default function Header() {
                             </div>
                         </>
                     )}
+
                     {currentUser && (
-                        <div className="ml-auto flex gap-2">
-                            <Link to={`/profile/${currentUser.id}`}>
-                                <Avatar>
-                                    <AvatarImage src={`http://localhost:5510/uploads/${author.avatar}`} />
-                                    <AvatarFallback>{currentUser.name[0]}</AvatarFallback>
-                                </Avatar></Link>
-                        </div>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <div className="group relative inline-block cursor-pointer">
+                                    <Avatar className="h-10 w-10 transition-transform duration-200 ease-in-out group-hover:scale-105">
+                                        {author?.avatar ? (
+                                            <AvatarImage src={`http://localhost:5510/uploads/${author.avatar}`} alt={author.name} />
+                                        ) : (
+                                            <AvatarFallback>{currentUser.name[0]}</AvatarFallback>
+                                        )}
+                                    </Avatar>
+                                    <div className="absolute top-0 left-0 h-full w-full rounded-full bg-gray-900/10 opacity-0 transition-opacity duration-200 ease-in-out group-hover:opacity-100 group-focus-within:opacity-100" />
+                                </div>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-48 rounded-md bg-white p-2 shadow-lg dark:bg-gray-800">
+                                <Link to={`/profile/${currentUser.id}`}>
+                                    <DropdownMenuItem className="cursor-pointer flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium text-white transition-colors ">
+                                        Profile
+                                    </DropdownMenuItem>
+                                </Link>
+                                <DropdownMenuSeparator className="my-1" />
+                                <Link to="/logout">
+                                    <DropdownMenuItem className="cursor-pointer flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-900">
+                                        <span>Logout</span>
+                                    </DropdownMenuItem>
+                                </Link>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     )}
                 </header>
             </div>
         </>
     );
 }
+
 
 function MenuIcon(props) {
     return (

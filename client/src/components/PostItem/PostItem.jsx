@@ -23,14 +23,12 @@ const PostItem = ({ postID, category, title, desc, authorID, thumbnail, createdA
                     </Link>
                     <p className="text-gray-500 dark:text-gray-400 mb-4">{shortDesc}</p>
 
-                    <Link to={`/posts/categories/${category}`}>
-                        <div className="flex items-end">
-                            <PostAuthor authorID={authorID} createdAt={createdAt} />
-                            <Button size="sm" className="">
-                                {category}
-                            </Button>
-                        </div>
-                    </Link>
+                    <div className="flex items-end justify-between">
+                        <PostAuthor authorID={authorID} createdAt={createdAt} />
+                        <Button size="sm" className="">
+                            {category}
+                        </Button>
+                    </div>
                 </div>
             </Link>
         </div>

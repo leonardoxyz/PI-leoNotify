@@ -17,28 +17,27 @@ const PostAuthor = ({ authorID, createdAt }) => {
             }
 
             try {
-                const res = await axios.get(`http://localhost:5510/api/users/${authorID.toString()}`);
+                const res = await axios.get(`http://localhost:5510/api/users/${authorID}`);
                 setAuthor(res?.data);
             } catch (error) {
                 console.error("Error fetching author:", error);
             }
         }
         getAuthor();
-    } , [authorID]);
-
+    }, [authorID]);
 
     return (
-        <Link to={`/posts/users/${author._id}`} className='grid grid-cols-3 items-center gap-4'>
-            <div className="col-span-1">
-                <img src={`http://localhost:5510/uploads/${author?.avatar}`} alt="Author Avatar" className='rounded-full aspect-square overflow-hidden' />
-            </div>
-            <div className="col-span-2 flex flex-col justify-between">
-                <h5 className="text-lg font-semibold">
-                    {author?.name}
-                </h5>
-                <small><ReactTimeAgo date={new Date(createdAt)} locale='pt-Br' /></small>
-            </div>
-        </Link>
+        <>
+            {author && (
+                <Link to={`/posts/users/${author._id}`} className="flex items-center gap-1">
+                    <img src={`http://localhost:5510/uploads/${author?.avatar}`} alt={author.username} className="w-14 h-14 rounded-full" />
+                    <span>{author.name}</span>
+                    <span className="text-gray-500 dark:text-gray-400 ml-[1px]">
+                        <ReactTimeAgo date={createdAt} locale="pt" />
+                    </span>
+                </Link>
+            )}
+        </>
     );
 };
 

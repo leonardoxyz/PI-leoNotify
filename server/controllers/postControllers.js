@@ -81,15 +81,6 @@ const getPost = async (req, res, next) => {
     }
 };
 
-const getCategoryPost = async (req, res, next) => {
-    try {
-        const { category } = req.params;
-        const catPosts = await Post.find({ category }).sort({ createdAt: -1 });
-        res.status(200).json(catPosts);
-    } catch (error) {
-        return next(new HttpError(error))
-    }
-};
 
 const getAuthorPost = async (req, res, next) => {
     try {
@@ -188,7 +179,6 @@ module.exports = {
     createPost,
     getPosts,
     getPost,
-    getCategoryPost,
     getAuthorPost,
     editPost,
     deletePost
