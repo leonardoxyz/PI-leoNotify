@@ -29,7 +29,7 @@ const Posts = () => {
     return (
         <div className="container">
             {posts.length > 0 ? <div className="container grid grid-cols-3 gap-16 ">
-                {posts.map(({ _id: id, thumbnail, category, title, desc, creator, authorID, createdAt }) => {
+                {posts.map(({ _id: id, thumbnail, category, title, desc, creator, createdAt }) => {
                     return (
                         <PostItem
                             key={id}

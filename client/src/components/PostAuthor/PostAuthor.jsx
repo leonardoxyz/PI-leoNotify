@@ -5,6 +5,13 @@ import ReactTimeAgo from 'react-time-ago';
 import TimeAgo from 'javascript-time-ago';
 import pt from 'javascript-time-ago/locale/pt';
 
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
+
 TimeAgo.addDefaultLocale(pt);
 
 const PostAuthor = ({ authorID, createdAt }) => {
@@ -36,6 +43,7 @@ const PostAuthor = ({ authorID, createdAt }) => {
                         <ReactTimeAgo date={createdAt} locale="pt" />
                     </span>
                 </Link>
+
             )}
         </>
     );

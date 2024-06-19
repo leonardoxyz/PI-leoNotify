@@ -10,13 +10,13 @@ export default function Footer() {
                 <nav>
                     <ul className="flex items-center space-x-4 text-sm">
                         <li>
-                            <Link to="/posts/categories/Agriculture" className="hover:underline">
-                                Agriculture
+                            <Link to="/posts/categories/Art" className="hover:underline">
+                                Art
                             </Link>
                         </li>
                         <li>
-                            <Link to="/posts/categories/Business" className="hover:underline">
-                                Business
+                            <Link to="/posts/categories/Technology" className="hover:underline">
+                                Technology
                             </Link>
                         </li>
                         <li>

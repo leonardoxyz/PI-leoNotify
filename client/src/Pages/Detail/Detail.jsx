@@ -8,6 +8,15 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+
 
 const Detail = () => {
     const { id } = useParams();
@@ -43,6 +52,23 @@ const Detail = () => {
 
     return (
         <>
+            {post && (
+                <div className='container'>
+                    <div className='flex h-20 items-center justify-center'>
+                        <Breadcrumb>
+                            <BreadcrumbList>
+                                <BreadcrumbItem>
+                                    <BreadcrumbLink href="/">Home</BreadcrumbLink>
+                                </BreadcrumbItem>
+                                <BreadcrumbSeparator />
+                                <BreadcrumbItem>
+                                    <BreadcrumbPage>{post.title}</BreadcrumbPage>
+                                </BreadcrumbItem>
+                            </BreadcrumbList>
+                        </Breadcrumb>
+                    </div>
+                </div>
+            )}
             <div className="bg-white dark:bg-gray-900 px-4 py-6 md:px-6 lg:py-12">
                 <div className="max-w-3xl mx-auto">
                     {post && (
@@ -55,7 +81,7 @@ const Detail = () => {
                                             <span>Published: </span>{new Date(post.createdAt).toLocaleDateString()}
                                         </p>
                                     </div>
-                                    <div className="uppercase text-bold bg-primary/10 dark:bg-primary/20 mt-4 rounded-full inline-block text-primary dark:text-primary-400 text-sm font-medium">
+                                    <div className="p-1 uppercase text-bold bg-primary/10 dark:bg-primary/20 mt-4 rounded-full inline-block text-primary dark:text-primary-400 text-sm font-medium">
                                         {post.category}
                                     </div>
                                     <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
