@@ -26,7 +26,10 @@ const PostItem = ({ postID, category, title, desc, authorID, thumbnail, createdA
                 <div className="p-4">
                     <Link to={`/posts/${postID}`}>
                         <h3 className="text-lg font-semibold mb-2">{postTitle}</h3>
-                        <p className="text-gray-500 dark:text-gray-400 mb-4">{shortDesc}</p>
+                        <div
+                            className="text-gray-500 dark:text-gray-400 mb-4"
+                            dangerouslySetInnerHTML={{ __html: shortDesc }}
+                        />
                     </Link>
 
                     <PostAuthor authorID={authorID} createdAt={createdAt} />

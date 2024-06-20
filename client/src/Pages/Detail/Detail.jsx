@@ -16,7 +16,8 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-
+import { Link } from 'react-router-dom';
+import DeletePost from '../Delete/DeletePost';
 
 const Detail = () => {
     const { id } = useParams();
@@ -69,6 +70,22 @@ const Detail = () => {
                     </div>
                 </div>
             )}
+            {post && (
+                <>
+                    <div className='max-w-3xl mx-auto flex justify-end'>
+                        {currentUser?.id === post.creator && (
+                            <div className="flex gap-2">
+                                <Link to={`/posts/${post?._id}/edit`}>
+                                    <Button variant="outline" size="sm">
+                                        Edit
+                                    </Button>
+                                </Link>
+                                <DeletePost postId={id}/>
+                            </div>
+                        )}
+                    </div>
+                </>
+            )}
             <div className="bg-white dark:bg-gray-900 px-4 py-6 md:px-6 lg:py-12">
                 <div className="max-w-3xl mx-auto">
                     {post && (
@@ -98,9 +115,10 @@ const Detail = () => {
                                     />
                                 </div>
                             </div>
-                            <p className="text-gray-500 dark:text-gray-400 mt-4">
-                                {post.desc}
-                            </p>
+                            <div
+                                className="text-gray-500 dark:text-gray-400 mt-4"
+                                dangerouslySetInnerHTML={{ __html: post.desc }}
+                            />
                         </>
                     )}
                 </div>
@@ -199,8 +217,7 @@ const Detail = () => {
                                 <div className="text-xs text-gray-500 dark:text-gray-400">May 10, 2023</div>
                             </div>
                             <div className="text-gray-700 dark:text-gray-300">
-                                Thanks for sharing this informative article. I learned a lot from it and it has sparked some interesting
-                                thoughts.
+                                Thanks for sharing this. It was a very informative read and gave me a lot to think about.
                             </div>
                             <div className="flex items-center gap-2">
                                 <Button variant="ghost" size="icon">
@@ -221,9 +238,6 @@ const Detail = () => {
                 </div>
             </div>
         </>
-
-
-
     );
 };
 

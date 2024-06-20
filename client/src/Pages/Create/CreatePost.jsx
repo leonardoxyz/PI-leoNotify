@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import React, { useContext, useEffect, useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-
+import axios from 'axios';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ const CreatePost = () => {
     const [desc, setDesc] = useState('');
     const [thumbnail, setThumbnail] = useState('');
     const navigate = useNavigate();
+    const [error, setError] = useState('');
 
     const modules = {
         toolbar: [
@@ -55,22 +56,36 @@ const CreatePost = () => {
         'Startups', 'Venture Capital', 'Angel Investing'
     ];
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Form submitted!");
+        const post = new FormData();
+        post.set('title', title);
+        post.set('category', category);
+        post.set('desc', desc);
+        post.append('thumbnail', thumbnail);
+
+        try {
+            const res = await axios.post(`http://localhost:5510/api/posts`, post, { withCredentials: true, headers: { 'Authorization': `Bearer ${token}` } });
+            if (res.status === 201) {
+                navigate('/')
+            }
+        } catch (error) {
+            setError(error.response.data.message);
+        }
     };
 
     const { currentUser } = useContext(UserContext);
     const token = currentUser?.token;
 
     useEffect(() => {
-        if(!token) {
+        if (!token) {
             navigate('/login')
         }
     }, [])
 
     return (
         <div className='flex items-center justify-center'>
+            {error && <p className="text-red-500 text-sm">{error}</p>}
             <Card className="w-full max-w-md mx-auto">
                 <CardHeader>
                     <CardTitle>Create New Topic</CardTitle>

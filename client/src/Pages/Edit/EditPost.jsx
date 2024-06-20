@@ -2,14 +2,15 @@ import { Button } from '@/components/ui/button';
 import React, { useContext, useEffect, useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-
+import axios from 'axios';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { useNavigate } from 'react-router-dom';
 import { UserContext } from '@/context/userContext';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const EditPost = () => {
+    const { id } = useParams();
     const [title, setTitle] = useState('');
     const [category, setCategory] = useState('Uncategorized');
     const [desc, setDesc] = useState('');
@@ -62,22 +63,63 @@ const EditPost = () => {
     const navigate = useNavigate();
     const { currentUser } = useContext(UserContext);
     const token = currentUser?.token;
+    const [error, setError] = useState('');
 
     useEffect(() => {
-        if (!token) {
-            navigate('/login')
+        const fetchPost = async () => {
+            try {
+                const res = await axios.get(`http://localhost:5510/api/posts/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                setTitle(res.data.title);
+                setCategory(res.data.category);
+                setDesc(res.data.desc);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        fetchPost();
+    }, []);
+
+    const editPost = async (e) => {
+        e.preventDefault();
+        const post = new FormData();
+        post.set('title', title);
+        post.set('category', category);
+        post.set('desc', desc);
+
+        if (thumbnail) {
+            post.append('thumbnail', thumbnail);
         }
-    }, [])
+
+        try {
+            const res = await axios.patch(`http://localhost:5510/api/posts/${id}`, post, {
+                withCredentials: true,
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            if (res.status === 200) {
+                navigate('/');
+            }
+        } catch (error) {
+            setError(error.response.data.message);
+        }
+    };
+
 
     return (
         <div className='flex min-h-screen items-center justify-center'>
+            {error && <p className="text-red-500 text-center">{error}</p>}
             <Card className="w-full max-w-md mx-auto">
                 <CardHeader>
                     <CardTitle>Edit Topic</CardTitle>
                     <CardDescription>Fill out the form to edit a old discussion topic.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={editPost} className="space-y-4">
                         <div className="space-y-1">
                             <Label htmlFor="title">Title</Label>
                             <Input

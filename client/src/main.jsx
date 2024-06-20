@@ -14,7 +14,6 @@ import CategoryPosts from './Pages/Category/CategoryPosts';
 import AuthorPost from './Pages/AuthorPost/AuthorPost';
 import Dashboard from './Pages/Dashboard/Dashboard';
 import EditPost from './Pages/Edit/EditPost';
-import DeletePost from './Pages/Delete/DeletePost';
 import Logout from './Pages/Logout/Logout';
 import UserProvider from './context/userContext';
 import { Toaster } from 'react-hot-toast';
@@ -34,7 +33,6 @@ const router = createBrowserRouter([
       { path: "posts/users/:id", element: <AuthorPost /> },
       { path: "myposts/:id", element: <Dashboard /> },
       { path: "posts/:id/edit", element: <EditPost /> },
-      { path: "posts/:id/delete", element: <DeletePost /> },
       { path: "logout", element: <Logout /> },
       { path: "*", element: <ErrorPage /> },
     ]
