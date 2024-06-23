@@ -5,6 +5,54 @@ const Post = require('../models/postModel');
 const User = require("../models/userModel");
 const HttpError = require('../models/errorModel');
 
+/**
+ * @swagger
+ * /api/posts:
+ *   post:
+ *     summary: Create a new post
+ *     tags:
+ *       - Posts
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *               desc:
+ *                 type: string
+ *               thumbnail:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       201:
+ *         description: Post created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 title:
+ *                   type: string
+ *                 category:
+ *                   type: string
+ *                 desc:
+ *                   type: string
+ *                 thumbnail:
+ *                   type: string
+ *                 creator:
+ *                   type: string
+ *       400:
+ *         description: Invalid data
+ *       500:
+ *         description: Server error
+ */
 const createPost = async (req, res, next) => {
     try {
         let { title, category, desc } = req.body;
@@ -58,15 +106,86 @@ const createPost = async (req, res, next) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/posts:
+ *   get:
+ *     summary: Retorna todos os posts
+ *     tags:
+ *       - Posts
+ *     responses:
+ *       200:
+ *         description: Lista de posts retornada com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                   title:
+ *                     type: string
+ *                   category:
+ *                     type: string
+ *                   desc:
+ *                     type: string
+ *                   thumbnail:
+ *                     type: string
+ *                   creator:
+ *                     type: string
+ *       500:
+ *         description: Server error
+ */
 const getPosts = async (req, res, next) => {
     try {
-        const posts = await Post.find().sort({ ùpdateAt: -1 })
+        const posts = await Post.find().sort({ updatedAt: -1 });
         res.status(200).json(posts);
     } catch (error) {
-        return next(new HttpError(error))
+        return next(new HttpError(error));
     }
 };
 
+/**
+ * @swagger
+ * /api/posts/{id}:
+ *   get:
+ *     summary: Return a post by ID
+ *     tags:
+ *       - Posts
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the post to be returned
+ *     responses:
+ *       200:
+ *         description: Post returned successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 title:
+ *                   type: string
+ *                 category:
+ *                   type: string
+ *                 desc:
+ *                   type: string
+ *                 thumbnail:
+ *                   type: string
+ *                 creator:
+ *                   type: string
+ *       404:
+ *         description: Post not found
+ *       500:
+ *         description: Server error
+ */
 const getPost = async (req, res, next) => {
     try {
         const postId = req.params.id;
@@ -75,23 +194,124 @@ const getPost = async (req, res, next) => {
         if (!post) {
             return next(new HttpError("Post not found", 404));
         }
+
         res.status(200).json(post);
     } catch (error) {
-        return next(new HttpError(error))
+        return next(new HttpError(error));
     }
 };
 
-
+/**
+ * @swagger
+ * /api/posts/author/{id}:
+ *   get:
+ *     summary: Return posts by author ID
+ *     tags:
+ *       - Posts
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the author whose posts will be returned
+ *     responses:
+ *       200:
+ *         description: List of posts found for the specified author
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                   title:
+ *                     type: string
+ *                   category:
+ *                     type: string
+ *                   desc:
+ *                     type: string
+ *                   thumbnail:
+ *                     type: string
+ *                   creator:
+ *                     type: string
+ *       404:
+ *         description: Post not found
+ *       500:
+ *         description: Server error
+ */
 const getAuthorPost = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const posts = await Post.find({ creator: id }).sort({ createdAt: -1 })
+        const posts = await Post.find({ creator: id }).sort({ createdAt: -1 });
+
         res.status(200).json(posts);
     } catch (error) {
-        return next(new HttpError(error))
+        return next(new HttpError(error));
     }
 };
 
+/**
+ * @swagger
+ * /api/posts/{id}:
+ *   patch:
+ *     summary: Update a post by post ID
+ *     tags:
+ *       - Posts
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the post to be updated
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *               desc:
+ *                 type: string
+ *               thumbnail:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Post updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 title:
+ *                   type: string
+ *                 category:
+ *                   type: string
+ *                 desc:
+ *                   type: string
+ *                 thumbnail:
+ *                   type: string
+ *                 creator:
+ *                   type: string
+ *       400:
+ *         description: Title, category, and description are required
+ *       401:
+ *         description: You are not authorized to edit this post
+ *       404:
+ *         description: Post not found
+ *       500:
+ *         description: Server error
+ */
 const editPost = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -150,6 +370,38 @@ const editPost = async (req, res, next) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/posts/{id}:
+ *   delete:
+ *     summary: Delete a post by post ID
+ *     tags:
+ *       - Posts
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the post to be deleted
+ *     responses:
+ *       200:
+ *         description: Post deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Post deleted successfully
+ *       401:
+ *         description: You are not authorized to delete this post
+ *       404:
+ *         description: Post not found
+ *       500:
+ *         description: Server error
+ */
 const deletePost = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -175,6 +427,50 @@ const deletePost = async (req, res, next) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/posts/category/{category}:
+ *   get:
+ *     summary: Return posts by category
+ *     tags:
+ *       - Posts
+ *     parameters:
+ *       - in: path
+ *         name: category
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Category of the posts to be returned
+ *     responses:
+ *       200:
+ *         description: List of posts found for the specified category
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                   title:
+ *                     type: string
+ *                   category:
+ *                     type: string
+ *                   desc:
+ *                     type: string
+ *                   thumbnail:
+ *                     type: string
+ *                   creator:
+ *                     type: string
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *       400:
+ *         description: Invalid data
+ *       500:
+ *         description: Server error
+ */
 const getCategoryPost = async (req, res, next) => {
     try {
         const { category } = req.params;

@@ -7,6 +7,54 @@ const fs = require("fs")
 const { v4: uuid } = require("uuid")
 const path = require("path")
 
+/**
+ * @swagger
+ * /api/users/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               password2:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *       400:
+ *         description: Error in sent data
+ *       422:
+ *         description: Validation error
+ *       500:
+ *         description: Server error
+ */
 const registerUser = async (req, res, next) => {
     try {
         const { name, email, password, password2 } = req.body;
@@ -45,6 +93,45 @@ const registerUser = async (req, res, next) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/users/login:
+ *   post:
+ *     summary: Log in an existing user
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User logged in successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                 id:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *       400:
+ *         description: Error in sent data
+ *       422:
+ *         description: Invalid credentials
+ *       500:
+ *         description: Server error
+ */
 const loginUser = async (req, res, next) => {
     try {
         const { email, password } = req.body;
@@ -78,6 +165,39 @@ const loginUser = async (req, res, next) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   get:
+ *     summary: Get a user by ID
+ *     tags:
+ *       - Users
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the user to retrieve
+ *     responses:
+ *       200:
+ *         description: User found successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
 const getUser = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -91,98 +211,180 @@ const getUser = async (req, res, next) => {
     }
 }
 
+/**
+ * @swagger
+ * /api/users/change-avatar:
+ *   post:
+ *     summary: Change the avatar of the logged-in user
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               avatar:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Avatar changed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 avatar:
+ *                   type: string
+ *       422:
+ *         description: Error in sent data
+ *       500:
+ *         description: Server error
+ */
 const changeAvatar = async (req, res, next) => {
     try {
-        if (!req.files.avatar) {
-            return next(new HttpError("Please upload an image", 422))
-        }
-
-        const user = await User.findById(req.user.id);
-
-        if (user.avatar) {
-            fs.unlinkSync(path.join(__dirname, `../uploads/${user.avatar}`), (err) => {
-                if (err) {
-                    return next(new HttpError("Avatar not found", 404))
-                }
-            })
-        }
-        const { avatar } = req.files;
-        if (avatar.size > 500000) {
-            return next(new HttpError("Image size too large", 422))
-        }
-
-        let fileName;
-        fileName = avatar.name;
-        let splittedFilename = fileName.split(".");
-        let newFilename = splittedFilename[0] + uuid() + "." + splittedFilename[splittedFilename.length - 1];
-        avatar.mv(path.join(__dirname, '..', 'uploads', newFilename), async (err) => {
-            if (err) {
-                return next(new HttpError("Image upload failed", 500))
-            }
-
-            const updatedAvatar = await User.findByIdAndUpdate(req.user.id, { avatar: newFilename }, { new: true });
-            if (!updatedAvatar) {
-                return next(new HttpError("Avatar update failed", 500))
-            }
-            res.status(200).json(updatedAvatar)
-        })
-
-    } catch (error) {
-        return next(new HttpError(error))
-    }
-};
-
-const editUser = async (req, res, next) => {
-    try {
-        const { name, email, currentPassword, newPassword, newConfirmPassword } = req.body;
-        if (!name || !email || !currentPassword || !newPassword) {
-            return next(new HttpError("All fields are required", 422))
+        if (!req.files || !req.files.avatar) {
+            return next(new HttpError("Please upload an image", 422));
         }
 
         const user = await User.findById(req.user.id);
         if (!user) {
-            return next(new HttpError("User not found", 404))
+            return next(new HttpError("User not found", 404));
+        }
+
+        if (user.avatar) {
+            fs.unlink(path.join(__dirname, `../uploads/${user.avatar}`), (err) => {
+                if (err) {
+                    console.error("Error deleting old avatar:", err);
+                }
+            });
+        }
+
+        const { avatar } = req.files;
+        if (avatar.size > 500000) {
+            return next(new HttpError("Image size too large", 422));
+        }
+
+        const fileNameParts = avatar.name.split(".");
+        const newFilename = `${fileNameParts[0]}-${uuid()}.${fileNameParts[fileNameParts.length - 1]}`;
+
+        avatar.mv(path.join(__dirname, '..', 'uploads', newFilename), async (err) => {
+            if (err) {
+                return next(new HttpError("Image upload failed", 500));
+            }
+
+            user.avatar = newFilename;
+            await user.save();
+
+            res.status(200).json(user);
+        });
+
+    } catch (error) {
+        console.error("Error changing avatar:", error);
+        return next(new HttpError("Internal Server Error", 500));
+    }
+};
+
+/**
+ * @swagger
+ * /api/users/edit-user/{id}:
+ *   patch:
+ *     summary: Edit user information
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               currentPassword:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *               confirmPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User information updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *       422:
+ *         description: Error in sent data
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+const editUser = async (req, res, next) => {
+    try {
+        const { name, email, currentPassword, newPassword, confirmPassword } = req.body;
+
+        if (!name || !email || !currentPassword || !newPassword || !confirmPassword) {
+            return next(new HttpError("All fields are required", 422));
+        }
+
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return next(new HttpError("User not found", 404));
         }
 
         const emailExist = await User.findOne({ email });
-        if (emailExist && (emailExist._id != req.user.id)) {
-            return next(new HttpError("Email already exists", 422))
+        if (emailExist && emailExist._id != req.user.id) {
+            return next(new HttpError("Email already exists", 422));
         }
 
         const validateUserPassword = await bcrypt.compare(currentPassword, user.password);
         if (!validateUserPassword) {
-            return next(new HttpError("Invalid password", 422))
+            return next(new HttpError("Invalid password", 422));
         }
 
-        if (newPassword !== newConfirmPassword) {
-            return next(new HttpError("Passwords do not match", 422))
+        if (newPassword !== confirmPassword) {
+            return next(new HttpError("Passwords do not match", 422));
         }
 
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(newPassword, salt);
 
-        const newInfo = await User.findByIdAndUpdate(req.user.id, { name, email, password: hash }, { new: true });
-        res.status(200).json(newInfo)
+        user.name = name;
+        user.email = email;
+        user.password = hash;
 
-    } catch (error) {
-        return next(new HttpError(error))
-    }
-}
+        await user.save();
 
-const getAuthors = async (req, res, next) => {
-    try {
-        const authors = await User.find().select("-password");
-        res.json(authors)
+        res.status(200).json(user);
     } catch (error) {
-        return next(new HttpError(error))
+        console.error("Error editing user:", error);
+        return next(new HttpError("Internal Server Error", 500));
     }
-}
+};
 
 module.exports = {
     registerUser,
     loginUser,
     getUser,
-    getAuthors,
     changeAvatar,
     editUser
 }

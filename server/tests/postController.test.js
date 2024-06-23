@@ -1,4 +1,7 @@
+const sinon = require('sinon');
 const { createPost } = require('../controllers/postControllers');
+const Post = require('../models/postModel');
+const User = require('../models/userModel');
 const HttpError = require('../models/errorModel');
 
 describe('createPost', () => {
@@ -9,55 +12,122 @@ describe('createPost', () => {
             body: {},
             files: {
                 thumbnail: {
-                    size: 1000000,
-                    name: 'test.jpg'
+                    name: 'test-thumbnail.png',
+                    size: 1000,
+                    mv: jest.fn()
                 }
             },
             user: {
-                id: 'leonardo'
+                id: '41241241221'
             }
         };
-        res = {};
+
+        res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn()
+        };
+
         next = jest.fn();
     });
 
     afterEach(() => {
-        jest.clearAllMocks();
+        sinon.restore();
     });
 
-    test('should return 400 if title is not provided', async () => {
+    it('should create a new post successfully', async () => {
+        req.body = {
+            title: 'Test Post',
+            category: 'Test Category',
+            desc: 'Test Description'
+        };
+
+        sinon.stub(Post, 'create').resolves({
+            _id: '123456',
+            title: 'Test Post',
+            category: 'Test Category',
+            desc: 'Test Description',
+            thumbnail: 'test-thumbnail.png',
+            creator: '41241241221'
+        });
+
+        sinon.stub(User.prototype, 'save').resolves();
+
         await createPost(req, res, next);
-        expect(next).toHaveBeenCalledWith(new HttpError("Title, category, and description are required", 400));
+
+        expect(next).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(201);
+        expect(res.json).toHaveBeenCalledWith({
+            _id: '123456',
+            title: 'Test Post',
+            category: 'Test Category',
+            desc: 'Test Description',
+            thumbnail: 'test-thumbnail.png',
+            creator: '41241241221'
+        });
     });
 
-    test('should return 400 if category is not provided', async () => {
-        req.body.title = 'Test Title';
+    it('should return an error if title, category, or description is missing', async () => {
+        req.body = {
+            category: 'Test Category',
+            desc: 'Test Description'
+        };
+
         await createPost(req, res, next);
-        expect(next).toHaveBeenCalledWith(new HttpError("Title, category, and description are required", 400));
+
+        expect(next).toHaveBeenCalledWith(expect.any(HttpError));
+        expect(next.mock.calls[0][0].message).toBe('Title, category, and description are required');
+        expect(res.status).not.toHaveBeenCalled();
+        expect(res.json).not.toHaveBeenCalled();
     });
 
-    test('should return 400 if desc is not provided', async () => {
-        req.body.title = 'Test Title';
-        req.body.category = 'Test Category';
+    it('should return an error if thumbnail is missing', async () => {
+        req.body = {
+            title: 'Test Post',
+            category: 'Test Category',
+            desc: 'Test Description'
+        };
+        delete req.files.thumbnail;
+
         await createPost(req, res, next);
-        expect(next).toHaveBeenCalledWith(new HttpError("Title, category, and description are required", 400));
+
+        expect(next).toHaveBeenCalledWith(expect.any(HttpError));
+        expect(next.mock.calls[0][0].message).toBe('Thumbnail is required');
+        expect(res.status).not.toHaveBeenCalled();
+        expect(res.json).not.toHaveBeenCalled();
     });
 
-    test('should return 400 if thumbnail is not provided', async () => {
-        req.body.title = 'Test Title';
-        req.body.category = 'Test Category';
-        req.body.desc = 'Test Description';
-        req.files.thumbnail = null;
-        await createPost(req, res, next);
-        expect(next).toHaveBeenCalledWith(new HttpError("Thumbnail is required", 400));
-    });
-
-    test('should return 400 if thumbnail size exceeds 2MB', async () => {
-        req.body.title = 'Test Title';
-        req.body.category = 'Test Category';
-        req.body.desc = 'Test Description';
+    it('should return an error if thumbnail size is greater than 2MB', async () => {
+        req.body = {
+            title: 'Test Post',
+            category: 'Test Category',
+            desc: 'Test Description'
+        };
         req.files.thumbnail.size = 3000000;
+
         await createPost(req, res, next);
-        expect(next).toHaveBeenCalledWith(new HttpError("Thumbnail size should be less than 2MB", 400));
+
+        expect(next).toHaveBeenCalledWith(expect.any(HttpError));
+        expect(next.mock.calls[0][0].message).toBe('Thumbnail size should be less than 2MB');
+        expect(res.status).not.toHaveBeenCalled();
+        expect(res.json).not.toHaveBeenCalled();
+    });
+
+    it('should return an error if uploading thumbnail fails', async () => {
+        req.body = {
+            title: 'Test Post',
+            category: 'Test Category',
+            desc: 'Test Description'
+        };
+
+        req.files.thumbnail.mv = jest.fn().mockImplementation((path, callback) => {
+            callback(new Error('Unexpected error'));
+        });
+
+        await createPost(req, res, next);
+
+        expect(next).toHaveBeenCalledWith(expect.any(HttpError));
+        expect(next.mock.calls[0][0].message).toBe('Uploading thumbnail failed');
+        expect(res.status).not.toHaveBeenCalled();
+        expect(res.json).not.toHaveBeenCalled();
     });
 });

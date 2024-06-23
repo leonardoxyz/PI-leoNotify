@@ -118,7 +118,7 @@ export default function Header() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-48 rounded-md bg-white p-2 shadow-lg dark:bg-gray-800">
                                 <Link to={`/profile/${currentUser.id}`}>
-                                    <DropdownMenuItem className="cursor-pointer flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium text-white transition-colors ">
+                                    <DropdownMenuItem className="cursor-pointer flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium text-black transition-colors ">
                                         Profile
                                     </DropdownMenuItem>
                                 </Link>

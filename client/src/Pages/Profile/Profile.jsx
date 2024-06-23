@@ -1,107 +1,177 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import Avatar1 from '../../assets/avatar15.jpg'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { UserContext } from '@/context/userContext'
+import { useState, useContext, useEffect } from 'react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { UserContext } from '@/context/userContext';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Profile = () => {
-    const [avatar, setAvatar] = useState(Avatar1)
-    const handleFileChange = (e) => {
-        setAvatar(e.target.files[0]);
-    };
-
-    const [name, setName] = useState('')
-    const [email, setEmail] = useState('')
-    const [currentPassword, setCurrentPassword] = useState('')
-    const [newPassword, setNewPassword] = useState('')
-    const [confirmPassword, setConfirmPassword] = useState('')
-
+    const { currentUser, updateUserAvatar } = useContext(UserContext);
     const navigate = useNavigate();
-    const { currentUser } = useContext(UserContext);
     const token = currentUser?.token;
+
+    const [avatar, setAvatar] = useState('');
+    const [avatarPreview, setAvatarPreview] = useState('');
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [changeAvatar, setChangeAvatar] = useState(false);
+    const [error, setError] = useState('');
 
     useEffect(() => {
         if (!token) {
-            navigate('/login')
+            navigate('/login');
+        } else {
+            fetchUserData();
         }
-    }, [])
+    }, [token, navigate]);
+
+    const fetchUserData = async () => {
+        try {
+            const res = await axios.get(`http://localhost:5510/api/users/${currentUser.id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setName(res.data.name);
+            setEmail(res.data.email);
+            setAvatar(res.data.avatar);
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setAvatar(file);
+        setAvatarPreview(URL.createObjectURL(file));
+    };
+
+    const changeAvatarHandler = async () => {
+        try {
+            const formData = new FormData();
+            formData.append('avatar', avatar);
+            const res = await axios.post(`http://localhost:5510/api/users/change-avatar`, formData, {
+                withCredentials: true,
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const newAvatar = res.data.avatar;
+            setAvatar(newAvatar);
+            setAvatarPreview('');
+            updateUserAvatar(newAvatar);
+        } catch (error) {
+            console.error(error);
+            setError('Failed to update avatar');
+        }
+    };
+
+    const updateProfile = async (e) => {
+        e.preventDefault();
+        setError(''); // Reset error state
+
+        try {
+            const res = await axios.patch(
+                `http://localhost:5510/api/users/edit-user/${currentUser.id}`,
+                {
+                    name,
+                    email,
+                    currentPassword,
+                    newPassword,
+                    confirmPassword,
+                },
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
+
+            if (res.status === 200) {
+                navigate('/logout');
+            }
+        } catch (error) {
+            console.error('Error updating user profile:', error);
+            if (error.response && error.response.data && error.response.data.message) {
+                setError(error.response.data.message);
+            } else {
+                setError('Failed to update profile');
+            }
+        }
+    };
 
     return (
-        <div className="flex min-h-screen items-center justify-center">
-            <Card className="w-full max-w-md mx-auto">
-                <div className='flex items-center justify-center p-4'>
-                    <Link
-                        to="/myposts/1"
-                        className="inline-flex h-10 items-center justify-center rounded-md bg-gray-900 px-8 text-sm font-medium text-gray-50 shadow transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90 dark:focus-visible:ring-gray-300"
-                    >
-                        MY POSTS
-                    </Link>
-                </div>
-                <CardHeader>
-                    <div className="flex flex-col gap-6 items-center justify-between">
-                        <div className='flex flex-col items-center justify-center'>
-                            <CardTitle>Update Profile</CardTitle>
-                            <CardDescription>Make changes to your profile information.</CardDescription>
-                        </div>
-                        <div className='flex items-center justify-center gap-4'>
-                            <Avatar className="h-16 w-16 rounded-full">
-                                <AvatarImage src="/placeholder-user.jpg" />
-                                <img src={Avatar1} />
-                            </Avatar>
-                            <Button variant="outline" className="mt-2">
-                                <input
-                                    type='file'
-                                    id='avatar'
-                                    name='avatar'
-                                    accept='image/png, image/jpeg'
-                                    className='hidden'
-                                    onChange={handleFileChange}
-                                />
-                                <label htmlFor='avatar' className='cursor-pointer'>
-                                    Upload New Avatar
-                                </label>
-                            </Button>
-                        </div>
-                    </div>
-                </CardHeader>
-                <form>
-                    <CardContent className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="fullName">Full Name</Label>
-                                <Input id="fullName" placeholder="Enter your full name" value={name} onChange={e => setName(e.target.value)} />
+        <form onSubmit={updateProfile}>
+            <div className="flex-grow place-content-center">
+                <div className="flex items-center justify-center py-6">
+                    <Card className="w-full max-w-lg mx-auto">
+                        <CardHeader>
+                            <CardTitle>Profile</CardTitle>
+                            <CardDescription>Update your profile information.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <div className="flex items-center space-x-4 justify-center">
+                                <Avatar className="h-24 w-24">
+                                    {avatarPreview ? (
+                                        <AvatarImage src={avatarPreview} alt="User avatar" />
+                                    ) : (
+                                        avatar ? (
+                                            <AvatarImage src={`http://localhost:5510/uploads/${avatar}`} alt="User avatar" />
+                                        ) : (
+                                            <AvatarFallback>{name.charAt(0)}</AvatarFallback>
+                                        )
+                                    )}
+                                </Avatar>
+                                <Button onClick={() => setChangeAvatar(!changeAvatar)} variant="outline">
+                                    Change Avatar
+                                </Button>
                             </div>
-                            <div className="space-y-2">
+                            {changeAvatar && (
+                                <div className="mt-4">
+                                    <Label htmlFor="avatar">Upload New Avatar</Label>
+                                    <Input id="avatar" type="file" onChange={handleFileChange} />
+                                    <Button onClick={changeAvatarHandler} className="mt-2">
+                                        Save Avatar
+                                    </Button>
+                                </div>
+                            )}
+                            <div className="mt-4 space-y-2">
+                                <Label htmlFor="name">Name</Label>
+                                <Input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your name" />
+                            </div>
+                            <div className="mt-4 space-y-2">
                                 <Label htmlFor="email">Email</Label>
-                                <Input id="email" type="email" placeholder="Enter your email" value={email} onChange={e => setEmail(e.target.value)} />
+                                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email" />
                             </div>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="currentPassword">Current Password</Label>
-                            <Input id="currentPassword" type="password" placeholder="Enter your current password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="newPassword">New Password</Label>
-                            <Input id="newPassword" type="password" placeholder="Enter your new password" value={setNewPassword} onChange={e => setNewPassword(e.target.value)} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                            <Input id="confirmPassword" type="password" placeholder="Confirm your new password" value={setConfirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
-                        </div>
-                        <p className='text-red-500'>this is wrong message</p>
-                    </CardContent>
-                </form>
+                            <div className="mt-4 space-y-2">
+                                <Label htmlFor="currentPassword">Current Password</Label>
+                                <Input id="currentPassword" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="Enter your current password" />
+                            </div>
+                            <div className="mt-4 space-y-2">
+                                <Label htmlFor="newPassword">New Password</Label>
+                                <Input id="newPassword" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter a new password" />
+                            </div>
+                            <div className="mt-4 space-y-2">
+                                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                                <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Confirm your new password" />
+                            </div>
+                            {error && (
+                                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                                    <strong className="font-bold">Oops!</strong>
+                                    <span className="block sm:inline"> {error}</span>
+                                </div>
+                            )}
+                        </CardContent>
+                        <CardFooter>
+                            <Button className="ml-auto" type="submit">
+                                Save Changes
+                            </Button>
+                        </CardFooter>
+                    </Card>
+                </div>
+            </div>
+        </form>
+    );
+};
 
-                <CardFooter>
-                    <Button className="ml-auto">Save Changes</Button>
-                </CardFooter>
-            </Card>
-        </div>
-    )
-}
-
-export default Profile
+export default Profile;

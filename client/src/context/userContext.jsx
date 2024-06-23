@@ -9,11 +9,18 @@ const UserProvider = ({ children }) => {
         localStorage.setItem('user', JSON.stringify(currentUser));
     }, [currentUser]);
 
+    const updateUserAvatar = (newAvatar) => {
+        setCurrentUser((prevUser) => ({
+            ...prevUser,
+            avatar: newAvatar,
+        }));
+    };
+
     return (
-        <UserContext.Provider value={{ currentUser, setCurrentUser }}>
+        <UserContext.Provider value={{ currentUser, setCurrentUser, updateUserAvatar }}>
             {children}
         </UserContext.Provider>
     );
-}
+};
 
 export default UserProvider;
