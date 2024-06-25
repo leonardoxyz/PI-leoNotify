@@ -17,6 +17,17 @@ const options = {
             }
         ],
         components: {
+            schemas: {
+                Comment: {
+                    type: 'object',
+                    properties: {
+                        postId: { type: 'string' },
+                        authorId: { type: 'string' },
+                        content: { type: 'string' },
+                        createdAt: { type: 'string', format: 'date-time' }
+                    }
+                }
+            },
             securitySchemes: {
                 bearerAuth: {
                     type: 'http',

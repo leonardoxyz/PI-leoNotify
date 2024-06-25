@@ -1,5 +1,11 @@
 const { Schema, model } = require('mongoose');
 
+const commentSchema = new Schema({
+    text: { type: String, required: true },
+    author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    createdAt: { type: Date, default: Date.now },
+});
+
 const postSchema = new Schema({
     title: { type: String, required: true },
     category: {
@@ -26,8 +32,9 @@ const postSchema = new Schema({
         message: "{VALUE IS NOT SUPPORTED}"
     },
     desc: { type: String, required: true },
-    creator: { type: Schema.Types.ObjectId, ref: 'User' },
-    thumbnail: { type: String, required: true }
+    creator: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    thumbnail: { type: String, required: true },
+    comments: [commentSchema], 
 }, { timestamps: true });
 
 module.exports = model('Post', postSchema);

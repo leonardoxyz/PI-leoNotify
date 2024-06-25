@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import Loader from '@/components/Loader/Loader';
-import { useParams } from 'react-router-dom';
-import { UserContext } from '@/context/userContext';
+import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import PostAuthor from '@/components/PostAuthor/PostAuthor';
 import { Textarea } from "@/components/ui/textarea"
@@ -16,32 +15,80 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Link } from 'react-router-dom';
 import DeletePost from '../Delete/DeletePost';
+import { UserContext } from '@/context/userContext';
 
 const Detail = () => {
+    const { currentUser, token } = useContext(UserContext); // Incluir o token aqui
     const { id } = useParams();
     const [post, setPost] = useState(null);
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-
-    const { currentUser } = useContext(UserContext);
-    const [author, setAuthor] = useState({});
+    const [commentText, setCommentText] = useState('');
+    const [comments, setComments] = useState([]);
+    const [authors, setAuthors] = useState({});
 
     useEffect(() => {
-        const getPost = async () => {
+        const fetchPost = async () => {
             setIsLoading(true);
             try {
-                const res = await axios.get(`http://localhost:5510/api/posts/${id}`);
-                setPost(res.data);
+                const response = await axios.get(`http://localhost:5510/api/posts/${id}`);
+                setPost(response.data);
+                setComments(response.data.comments);
+
+                // Fetch authors' avatars
+                const authorIds = response.data.comments.map(comment => comment.author);
+                const uniqueAuthorIds = [...new Set(authorIds)]; // Obter IDs únicos dos autores
+
+                const fetchedAuthors = {};
+
+                for (const authorId of uniqueAuthorIds) {
+                    try {
+                        const res = await axios.get(`http://localhost:5510/api/users/${authorId}`);
+                        fetchedAuthors[authorId] = {
+                            name: res.data.name,
+                            avatar: res.data.avatar,
+                        };
+                    } catch (error) {
+                        fetchedAuthors[authorId] = {
+                            name: 'Unknown',
+                            avatar: null,
+                        };
+                    }
+                }
+
+                setAuthors(fetchedAuthors);
             } catch (error) {
                 setError(error);
             } finally {
                 setIsLoading(false);
             }
         };
-        getPost();
+
+        fetchPost();
     }, [id]);
+
+    const handleSubmitComment = async (event) => {
+        event.preventDefault();
+
+        try {
+            const response = await axios.post(
+                `http://localhost:5510/api/posts/${id}/comments`,
+                { text: commentText },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Enviar token no cabeçalho
+                    },
+                }
+            );
+
+            // Atualizar o estado de comments após o envio
+            setComments(prevComments => [...prevComments, response.data]);
+            setCommentText(''); // Limpar o campo de texto após o envio
+        } catch (error) {
+            console.error('Error submitting comment:', error);
+        }
+    };
 
     if (isLoading) {
         return <Loader />;
@@ -80,7 +127,7 @@ const Detail = () => {
                                         Edit
                                     </Button>
                                 </Link>
-                                <DeletePost postId={id}/>
+                                <DeletePost postId={id} />
                             </div>
                         )}
                     </div>
@@ -139,104 +186,55 @@ const Detail = () => {
                             View all comments
                         </Button>
                     </div>
-                    <form className="grid gap-4">
-                        <Textarea placeholder="Write your comment here..." className="min-h-[120px] resize-none" />
+                    <form onSubmit={handleSubmitComment} className="grid gap-4">
+                        <Textarea
+                            placeholder="Write your comment here..."
+                            className="min-h-[120px] resize-none"
+                            value={commentText}
+                            onChange={(e) => setCommentText(e.target.value)}
+                        />
                         <div className="flex justify-end">
                             <Button type="submit">Submit</Button>
                         </div>
                     </form>
                 </div>
                 <div className="space-y-6">
-                    <div className="flex items-start gap-4">
-                        <Avatar className="w-12 h-12 border">
-                            <AvatarImage src="/placeholder-user.jpg" />
-                            <AvatarFallback>AC</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 space-y-2">
-                            <div className="flex items-center justify-between">
-                                <div className="font-semibold">@iamwillpursell</div>
-                                <div className="text-xs text-gray-500 dark:text-gray-400">May 15, 2023</div>
-                            </div>
-                            <div className="text-gray-700 dark:text-gray-300">
-                                This is a great article! I really enjoyed learning more about the topic and the insights provided.
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Button variant="ghost" size="icon">
-                                    <ThumbsUpIcon className="w-4 h-4" />
-                                    <span className="sr-only">Like</span>
-                                </Button>
-                                <Button variant="ghost" size="icon">
-                                    <MessageCircleIcon className="w-4 h-4" />
-                                    <span className="sr-only">Reply</span>
-                                </Button>
-                                <Button variant="ghost" size="icon">
-                                    <ShareIcon className="w-4 h-4" />
-                                    <span className="sr-only">Share</span>
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex items-start gap-4">
-                        <Avatar className="w-12 h-12 border">
-                            <AvatarImage src="/placeholder-user.jpg" />
-                            <AvatarFallback>AC</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 space-y-2">
-                            <div className="flex items-center justify-between">
-                                <div className="font-semibold">@HackSoft</div>
-                                <div className="text-xs text-gray-500 dark:text-gray-400">May 12, 2023</div>
-                            </div>
-                            <div className="text-gray-700 dark:text-gray-300">
-                                Interesting perspective. I have a few thoughts to add to this discussion and would love to hear your
-                                feedback.
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Button variant="ghost" size="icon">
-                                    <ThumbsUpIcon className="w-4 h-4" />
-                                    <span className="sr-only">Like</span>
-                                </Button>
-                                <Button variant="ghost" size="icon">
-                                    <MessageCircleIcon className="w-4 h-4" />
-                                    <span className="sr-only">Reply</span>
-                                </Button>
-                                <Button variant="ghost" size="icon">
-                                    <ShareIcon className="w-4 h-4" />
-                                    <span className="sr-only">Share</span>
-                                </Button>
+                    {comments.map(comment => (
+                        <div key={comment._id} className="flex items-start gap-4">
+                            <Avatar className="w-12 h-12 border">
+                                {authors[comment.author]?.avatar ? (
+                                    <AvatarImage src={`http://localhost:5510/uploads/${authors[comment.author].avatar}`} />
+                                ) : (
+                                    <AvatarFallback>{authors[comment.author]?.name[0]}</AvatarFallback>
+                                )}
+                            </Avatar>
+                            <div className="flex-1 space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <div className="font-semibold">{authors[comment.author]?.name}</div>
+                                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                                        {new Date(comment.createdAt).toLocaleDateString()}
+                                    </div>
+                                </div>
+                                <div className="text-gray-700 dark:text-gray-300">
+                                    {comment.text}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Button variant="ghost" size="icon">
+                                        <ThumbsUpIcon className="w-4 h-4" />
+                                    </Button>
+                                    <Button variant="ghost" size="icon">
+                                        <MessageCircleIcon className="w-4 h-4" />
+
+                                    </Button>
+                                    <Button variant="ghost" size="icon">
+                                        <ShareIcon className="w-4 h-4" />
+                                    </Button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="flex items-start gap-4">
-                        <Avatar className="w-12 h-12 border">
-                            <AvatarImage src="/placeholder-user.jpg" />
-                            <AvatarFallback>AC</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 space-y-2">
-                            <div className="flex items-center justify-between">
-                                <div className="font-semibold">@greed7513</div>
-                                <div className="text-xs text-gray-500 dark:text-gray-400">May 10, 2023</div>
-                            </div>
-                            <div className="text-gray-700 dark:text-gray-300">
-                                Thanks for sharing this. It was a very informative read and gave me a lot to think about.
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Button variant="ghost" size="icon">
-                                    <ThumbsUpIcon className="w-4 h-4" />
-                                    <span className="sr-only">Like</span>
-                                </Button>
-                                <Button variant="ghost" size="icon">
-                                    <MessageCircleIcon className="w-4 h-4" />
-                                    <span className="sr-only">Reply</span>
-                                </Button>
-                                <Button variant="ghost" size="icon">
-                                    <ShareIcon className="w-4 h-4" />
-                                    <span className="sr-only">Share</span>
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
+                    ))}
                 </div>
-            </div>
+            </div >
         </>
     );
 };
@@ -281,7 +279,6 @@ function ShareIcon(props) {
         </svg>
     )
 }
-
 
 function ThumbsUpIcon(props) {
     return (

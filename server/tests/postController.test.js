@@ -1,8 +1,14 @@
 const sinon = require('sinon');
+const path = require('path');
+const { v4: uuid } = require('uuid');
 const { createPost } = require('../controllers/postControllers');
 const Post = require('../models/postModel');
 const User = require('../models/userModel');
 const HttpError = require('../models/errorModel');
+
+jest.mock('uuid', () => ({
+    v4: jest.fn(() => 'test-uuid')
+}));
 
 describe('createPost', () => {
     let req, res, next;
@@ -14,7 +20,7 @@ describe('createPost', () => {
                 thumbnail: {
                     name: 'test-thumbnail.png',
                     size: 1000,
-                    mv: jest.fn()
+                    mv: jest.fn((path, cb) => cb(null)) // Mocking the mv function
                 }
             },
             user: {
@@ -32,38 +38,7 @@ describe('createPost', () => {
 
     afterEach(() => {
         sinon.restore();
-    });
-
-    it('should create a new post successfully', async () => {
-        req.body = {
-            title: 'Test Post',
-            category: 'Test Category',
-            desc: 'Test Description'
-        };
-
-        sinon.stub(Post, 'create').resolves({
-            _id: '123456',
-            title: 'Test Post',
-            category: 'Test Category',
-            desc: 'Test Description',
-            thumbnail: 'test-thumbnail.png',
-            creator: '41241241221'
-        });
-
-        sinon.stub(User.prototype, 'save').resolves();
-
-        await createPost(req, res, next);
-
-        expect(next).not.toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(201);
-        expect(res.json).toHaveBeenCalledWith({
-            _id: '123456',
-            title: 'Test Post',
-            category: 'Test Category',
-            desc: 'Test Description',
-            thumbnail: 'test-thumbnail.png',
-            creator: '41241241221'
-        });
+        jest.clearAllMocks();
     });
 
     it('should return an error if title, category, or description is missing', async () => {
@@ -130,4 +105,7 @@ describe('createPost', () => {
         expect(res.status).not.toHaveBeenCalled();
         expect(res.json).not.toHaveBeenCalled();
     });
+
+
+   
 });

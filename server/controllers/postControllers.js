@@ -57,15 +57,18 @@ const createPost = async (req, res, next) => {
     try {
         let { title, category, desc } = req.body;
         if (!title || !category || !desc) {
+            console.log("Missing required fields");
             return next(new HttpError("Title, category, and description are required", 400));
         }
 
         const { thumbnail } = req.files;
         if (!thumbnail) {
+            console.log("Thumbnail is required");
             return next(new HttpError("Thumbnail is required", 400));
         }
 
         if (thumbnail.size > 2000000) {
+            console.log("Thumbnail size exceeds 2MB");
             return next(new HttpError("Thumbnail size should be less than 2MB", 400));
         }
 
@@ -75,6 +78,7 @@ const createPost = async (req, res, next) => {
 
         thumbnail.mv(path.join(__dirname, '..', 'uploads', newFilename), async (err) => {
             if (err) {
+                console.log("Error uploading thumbnail", err);
                 return next(new HttpError("Uploading thumbnail failed", 500));
             } else {
                 const newPost = await Post.create({
@@ -86,6 +90,7 @@ const createPost = async (req, res, next) => {
                 });
 
                 if (!newPost) {
+                    console.log("Creating post failed");
                     return next(new HttpError("Creating post failed, please try again", 500));
                 }
 
@@ -97,11 +102,13 @@ const createPost = async (req, res, next) => {
                 }
                 await currentUser.save();
 
+                console.log("Post created successfully");
                 res.status(201).json(newPost);
             }
         });
 
     } catch (error) {
+        console.log("Catch block error", error);
         return next(new HttpError("Creating post failed, please try again", 500));
     }
 };
