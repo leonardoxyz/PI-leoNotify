@@ -3,10 +3,10 @@ import Loader from '@/components/Loader/Loader';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import PostAuthor from '@/components/PostAuthor/PostAuthor';
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -14,12 +14,12 @@ import {
     BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+} from "@/components/ui/breadcrumb";
 import DeletePost from '../Delete/DeletePost';
 import { UserContext } from '@/context/userContext';
 
 const Detail = () => {
-    const { currentUser, token } = useContext(UserContext); // Incluir o token aqui
+    const { currentUser, token } = useContext(UserContext);
     const { id } = useParams();
     const [post, setPost] = useState(null);
     const [error, setError] = useState(null);
@@ -36,9 +36,8 @@ const Detail = () => {
                 setPost(response.data);
                 setComments(response.data.comments);
 
-                // Fetch authors' avatars
                 const authorIds = response.data.comments.map(comment => comment.author);
-                const uniqueAuthorIds = [...new Set(authorIds)]; // Obter IDs únicos dos autores
+                const uniqueAuthorIds = [...new Set(authorIds)];
 
                 const fetchedAuthors = {};
 
@@ -68,27 +67,7 @@ const Detail = () => {
         fetchPost();
     }, [id]);
 
-    const handleSubmitComment = async (event) => {
-        event.preventDefault();
-
-        try {
-            const response = await axios.post(
-                `http://localhost:5510/api/posts/${id}/comments`,
-                { text: commentText },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`, // Enviar token no cabeçalho
-                    },
-                }
-            );
-
-            // Atualizar o estado de comments após o envio
-            setComments(prevComments => [...prevComments, response.data]);
-            setCommentText(''); // Limpar o campo de texto após o envio
-        } catch (error) {
-            console.error('Error submitting comment:', error);
-        }
-    };
+    useEffect
 
     if (isLoading) {
         return <Loader />;
@@ -182,9 +161,6 @@ const Detail = () => {
                             <h2 className="text-3xl font-bold">Discussion</h2>
                             <p className="text-gray-500 dark:text-gray-400">Share your thoughts and engage with the community.</p>
                         </div>
-                        <Button variant="outline" size="sm">
-                            View all comments
-                        </Button>
                     </div>
                     <form onSubmit={handleSubmitComment} className="grid gap-4">
                         <Textarea
@@ -224,7 +200,6 @@ const Detail = () => {
                                     </Button>
                                     <Button variant="ghost" size="icon">
                                         <MessageCircleIcon className="w-4 h-4" />
-
                                     </Button>
                                     <Button variant="ghost" size="icon">
                                         <ShareIcon className="w-4 h-4" />
@@ -234,7 +209,7 @@ const Detail = () => {
                         </div>
                     ))}
                 </div>
-            </div >
+            </div>
         </>
     );
 };

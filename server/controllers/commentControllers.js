@@ -6,7 +6,7 @@ const HttpError = require('../models/errorModel');
  * @swagger
  * /api/posts/{id}/comments:
  *   post:
- *     summary: Adicionar um comentário a um post específico
+ *     summary: Add a comment to a specific post
  *     tags: [Comments]
  *     parameters:
  *       - in: path
@@ -14,7 +14,7 @@ const HttpError = require('../models/errorModel');
  *         required: true
  *         schema:
  *           type: string
- *         description: ID do post ao qual o comentário será adicionado
+ *         description: ID of the post to which the comment belongs
  *     requestBody:
  *       required: true
  *       content:
@@ -26,7 +26,7 @@ const HttpError = require('../models/errorModel');
  *                 type: string
  *     responses:
  *       201:
- *         description: Comentário adicionado com sucesso
+ *         description: Comment created successfully
  *         content:
  *           application/json:
  *             schema:
@@ -46,18 +46,18 @@ const HttpError = require('../models/errorModel');
  *                     type: string
  *                     format: date-time
  *       400:
- *         description: Dados inválidos
+ *         description: Invalid data
  *       401:
- *         description: Não autorizado
+ *         description: Not authorized
  *       404:
- *         description: Post não encontrado
+ *         description: Post not found
  *       500:
- *         description: Erro no servidor
+ *         description: Error on the server
  */
 const createComment = async (req, res, next) => {
     try {
         const { text } = req.body;
-        const { id } = req.params; // id do post
+        const { id } = req.params;
 
         const post = await Post.findById(id);
 
@@ -70,7 +70,6 @@ const createComment = async (req, res, next) => {
             author: req.user.id,
         };
 
-        // Adicionar o nome do autor ao novo comentário
         const authorUser = await User.findById(req.user.id);
         if (!authorUser) {
             return next(new HttpError('User not found', 404));
@@ -92,7 +91,7 @@ const createComment = async (req, res, next) => {
  * @swagger
  * /api/posts/{postId}/comments/{commentId}:
  *   delete:
- *     summary: Deletar um comentário de um post específico
+ *     summary: Delete a comment from a specific post
  *     tags: [Comments]
  *     parameters:
  *       - in: path
@@ -100,16 +99,16 @@ const createComment = async (req, res, next) => {
  *         required: true
  *         schema:
  *           type: string
- *         description: ID do post ao qual o comentário pertence
+ *         description: ID of the post to which the comment belongs
  *       - in: path
  *         name: commentId
  *         required: true
  *         schema:
  *           type: string
- *         description: ID do comentário a ser deletado
+ *         description: ID of the comment to delete
  *     responses:
  *       200:
- *         description: Comentário deletado com sucesso
+ *         description: Comment deleted successfully
  *         content:
  *           application/json:
  *             schema:
@@ -129,15 +128,15 @@ const createComment = async (req, res, next) => {
  *                     type: string
  *                     format: date-time
  *       401:
- *         description: Não autorizado a deletar o comentário
+ *         description: Not authorized
  *       404:
- *         description: Post ou comentário não encontrado
+ *         description: Post or comment not found
  *       500:
- *         description: Erro no servidor
+ *         description: Error on the server
  */
 const deleteComment = async (req, res, next) => {
     try {
-        const { postId, commentId } = req.params; // postId e commentId
+        const { postId, commentId } = req.params;
         const post = await Post.findById(postId);
 
         if (!post) {
@@ -154,7 +153,6 @@ const deleteComment = async (req, res, next) => {
             return next(new HttpError('You are not authorized to delete this comment', 401));
         }
 
-        // Remover o nome do autor do comentário antes de deletar
         const authorUser = await User.findById(comment.author);
         if (!authorUser) {
             return next(new HttpError('User not found', 404));
