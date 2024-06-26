@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { UserContext } from '@/context/userContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const Profile = () => {
     const { currentUser, updateUserAvatar } = useContext(UserContext);
@@ -36,9 +37,10 @@ const Profile = () => {
             const res = await axios.get(`http://localhost:5510/api/users/${currentUser.id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            setName(res.data.name);
-            setEmail(res.data.email);
-            setAvatar(res.data.avatar);
+            const userData = res.data;
+            setName(userData.name);
+            setEmail(userData.email);
+            setAvatar(userData.avatar);
         } catch (error) {
             console.error('Error fetching user data:', error);
         }
@@ -63,45 +65,60 @@ const Profile = () => {
             setAvatarPreview('');
             updateUserAvatar(newAvatar);
         } catch (error) {
-            console.error(error);
-            setError('Failed to update avatar');
+            handleRequestError(error);
         }
     };
 
-    const updateProfile = async (e) => {
-        e.preventDefault();
-        setError(''); // Reset error state
-
+    const updateProfile = async (updatedData) => {
         try {
             const res = await axios.patch(
                 `http://localhost:5510/api/users/edit-user/${currentUser.id}`,
-                {
-                    name,
-                    email,
-                    currentPassword,
-                    newPassword,
-                    confirmPassword,
-                },
+                updatedData,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
             );
+            return res;
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    const handleProfileUpdate = async (e) => {
+        e.preventDefault();
+        setError('');
+
+        try {
+            const updatedData = {
+                name,
+                email,
+                currentPassword,
+                newPassword,
+                confirmPassword,
+            };
+
+            const res = await updateProfile(updatedData);
 
             if (res.status === 200) {
-                navigate('/logout');
+                toast.success('Profile updated successfully');
+                navigate('/');
             }
         } catch (error) {
-            console.error('Error updating user profile:', error);
-            if (error.response && error.response.data && error.response.data.message) {
-                setError(error.response.data.message);
-            } else {
-                setError('Failed to update profile');
-            }
+            handleRequestError(error);
+        }
+    };
+
+    const handleRequestError = (error) => {
+        console.error('Error updating user profile:', error);
+        if (error.response && error.response.data && error.response.data.message) {
+            setError(error.response.data.message);
+        } else {
+            setError('Failed to update profile');
         }
     };
 
     return (
-        <form onSubmit={updateProfile}>
+        <form onSubmit={handleProfileUpdate}>
             <div className="flex-grow place-content-center">
                 <div className="flex items-center justify-center py-6">
                     <Card className="w-full max-w-lg mx-auto">
@@ -122,7 +139,7 @@ const Profile = () => {
                                         )
                                     )}
                                 </Avatar>
-                                <Button onClick={() => setChangeAvatar(!changeAvatar)} variant="outline">
+                                <Button variant="outline" onClick={() => setChangeAvatar(!changeAvatar)}>
                                     Change Avatar
                                 </Button>
                             </div>

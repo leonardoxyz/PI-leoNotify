@@ -300,6 +300,13 @@ const changeAvatar = async (req, res, next) => {
  *     summary: Edit user information
  *     tags:
  *       - Users
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: User ID to edit
+ *         schema:
+ *           type: string
  *     requestBody:
  *       required: true
  *       content:
@@ -342,39 +349,43 @@ const editUser = async (req, res, next) => {
     try {
         const { name, email, currentPassword, newPassword, confirmPassword } = req.body;
 
-        if (!name || !email || !currentPassword || !newPassword || !confirmPassword) {
-            return next(new HttpError("All fields are required", 422));
-        }
-
         const user = await User.findById(req.user.id);
         if (!user) {
             return next(new HttpError("User not found", 404));
         }
 
-        const emailExist = await User.findOne({ email });
-        if (emailExist && emailExist._id != req.user.id) {
-            return next(new HttpError("Email already exists", 422));
+        if (email !== user.email) {
+            const emailExist = await User.findOne({ email });
+            if (emailExist && emailExist._id != req.user.id) {
+                return next(new HttpError("Email already exists", 422));
+            }
         }
-
-        const validateUserPassword = await bcrypt.compare(currentPassword, user.password);
-        if (!validateUserPassword) {
-            return next(new HttpError("Invalid password", 422));
-        }
-
-        if (newPassword !== confirmPassword) {
-            return next(new HttpError("Passwords do not match", 422));
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        const hash = await bcrypt.hash(newPassword, salt);
 
         user.name = name;
         user.email = email;
-        user.password = hash;
+
+        if (currentPassword && newPassword && confirmPassword) {
+            const validateUserPassword = await bcrypt.compare(currentPassword, user.password);
+            if (!validateUserPassword) {
+                return next(new HttpError("Invalid password", 422));
+            }
+
+            if (newPassword !== confirmPassword) {
+                return next(new HttpError("Passwords do not match", 422));
+            }
+
+            const salt = await bcrypt.genSalt(10);
+            const hash = await bcrypt.hash(newPassword, salt);
+            user.password = hash;
+        }
 
         await user.save();
 
-        res.status(200).json(user);
+        res.status(200).json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+        });
     } catch (error) {
         console.error("Error editing user:", error);
         return next(new HttpError("Internal Server Error", 500));

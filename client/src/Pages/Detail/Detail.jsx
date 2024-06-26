@@ -98,10 +98,6 @@ const Detail = () => {
     const handleSubmitComment = async (e) => {
         e.preventDefault();
 
-        if (!token) {
-            return;
-        }
-
         try {
             const response = await axios.post(
                 `http://localhost:5510/api/posts/${id}/comments`,
@@ -167,11 +163,14 @@ const Detail = () => {
                         <>
                             <div className="flex">
                                 <div className="flex-1">
-                                    <div className="">
-                                        <p className="text-gray-500 dark:text-gray-400">
-                                            <PostAuthor authorID={post.creator} createdAt={post.createdAt} />
-                                            <span>Published: </span>{new Date(post.createdAt).toLocaleDateString()}
-                                        </p>
+                                    <div className="flex items-center">
+                                        <PostAuthor authorID={post.creator} createdAt={post.createdAt} />
+                                        Author: {authors[post.creator]?.name || 'Unknown'}
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className='text-gray-600'>
+                                            Published: {new Date(post.createdAt).toLocaleDateString()}
+                                        </span>
                                     </div>
                                     <div className="p-1 uppercase text-bold bg-primary/10 dark:bg-primary/20 mt-4 rounded-full inline-block text-primary dark:text-primary-400 text-sm font-medium">
                                         {post.category}

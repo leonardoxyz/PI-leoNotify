@@ -89,7 +89,7 @@ const createComment = async (req, res, next) => {
 
 /**
  * @swagger
- * /api/posts/{postId}/comments/{commentId}:
+ * /api/posts/{postId}/comments/{id}:
  *   delete:
  *     summary: Delete a comment from a specific post
  *     tags: [Comments]
@@ -101,7 +101,7 @@ const createComment = async (req, res, next) => {
  *           type: string
  *         description: ID of the post to which the comment belongs
  *       - in: path
- *         name: commentId
+ *         name: id
  *         required: true
  *         schema:
  *           type: string
