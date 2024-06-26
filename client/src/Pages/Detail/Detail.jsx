@@ -67,7 +67,56 @@ const Detail = () => {
         fetchPost();
     }, [id]);
 
-    useEffect
+    useEffect(() => {
+        const fetchAuthors = async () => {
+            const authorIds = comments.map(comment => comment.author);
+            const uniqueAuthorIds = [...new Set(authorIds)];
+
+            const fetchedAuthors = {};
+
+            for (const authorId of uniqueAuthorIds) {
+                try {
+                    const res = await axios.get(`http://localhost:5510/api/users/${authorId}`);
+                    fetchedAuthors[authorId] = {
+                        name: res.data.name,
+                        avatar: res.data.avatar,
+                    };
+                } catch (error) {
+                    fetchedAuthors[authorId] = {
+                        name: 'Unknown',
+                        avatar: null,
+                    };
+                }
+            }
+
+            setAuthors(fetchedAuthors);
+        };
+
+        fetchAuthors();
+    }, [comments]);
+
+    const handleSubmitComment = async (e) => {
+        e.preventDefault();
+
+        if (!token) {
+            return;
+        }
+
+        try {
+            const response = await axios.post(
+                `http://localhost:5510/api/posts/${id}/comments`,
+                { text: commentText },
+                { headers: { Authorization: `Bearer ${currentUser.token}` } }
+            );
+
+            setComments(response.data);
+            setCommentText('');
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+
 
     if (isLoading) {
         return <Loader />;
