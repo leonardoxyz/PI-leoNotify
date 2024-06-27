@@ -77,7 +77,7 @@ const Detail = () => {
 
             for (const authorId of uniqueAuthorIds) {
                 try {
-                    const res = await axios.get(`${process.env.BACK_URL}/users/authorId`);
+                    const res = await axios.get(`http://localhost:5510/api/users/${authorId}`);
                     fetchedAuthors[authorId] = {
                         name: res.data.name,
                         avatar: res.data.avatar,
@@ -113,12 +113,11 @@ const Detail = () => {
 
             setComments(response.data);
             setCommentText('');
+            toast.success('Comment added successfully');
         } catch (error) {
-            console.error('Error submitting comment:', error);
+            toast.error('Failed to add comment');
         }
     };
-
-
 
     if (isLoading) {
         return <Loader />;
