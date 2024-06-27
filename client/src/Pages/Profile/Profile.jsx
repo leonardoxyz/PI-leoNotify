@@ -101,7 +101,8 @@ const Profile = () => {
 
             if (res.status === 200) {
                 toast.success('Profile updated successfully');
-                navigate('/');
+                toast.success('Your password is: ' + newPassword);
+                navigate('/logout');
             }
         } catch (error) {
             handleRequestError(error);

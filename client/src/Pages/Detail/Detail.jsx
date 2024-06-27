@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import DeletePost from '../Delete/DeletePost';
 import { UserContext } from '@/context/userContext';
+import { toast } from 'react-hot-toast';
 
 const Detail = () => {
     const { currentUser, token } = useContext(UserContext);
@@ -76,7 +77,7 @@ const Detail = () => {
 
             for (const authorId of uniqueAuthorIds) {
                 try {
-                    const res = await axios.get(`http://localhost:5510/api/users/${authorId}`);
+                    const res = await axios.get(`${process.env.BACK_URL}/users/authorId`);
                     fetchedAuthors[authorId] = {
                         name: res.data.name,
                         avatar: res.data.avatar,
@@ -98,6 +99,11 @@ const Detail = () => {
     const handleSubmitComment = async (e) => {
         e.preventDefault();
 
+        if (!currentUser) {
+            toast.error('You must be logged in to comment');
+            return;
+        }
+
         try {
             const response = await axios.post(
                 `http://localhost:5510/api/posts/${id}/comments`,
@@ -108,7 +114,7 @@ const Detail = () => {
             setComments(response.data);
             setCommentText('');
         } catch (error) {
-            console.error(error);
+            console.error('Error submitting comment:', error);
         }
     };
 
