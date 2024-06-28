@@ -53,6 +53,10 @@ const Profile = () => {
     };
 
     const changeAvatarHandler = async () => {
+        if (!avatar) {
+            setError('Please select an avatar to upload.');
+            return;
+        }
         try {
             const formData = new FormData();
             formData.append('avatar', avatar);
@@ -64,6 +68,7 @@ const Profile = () => {
             setAvatar(newAvatar);
             setAvatarPreview('');
             updateUserAvatar(newAvatar);
+            toast.success('Avatar updated successfully');
         } catch (error) {
             handleRequestError(error);
         }
@@ -101,7 +106,7 @@ const Profile = () => {
 
             if (res.status === 200) {
                 toast.success('Profile updated successfully');
-                toast.success('Your password is: ' + newPassword);
+                toast.success('Your actual password is: '+ newPassword);
                 navigate('/logout');
             }
         } catch (error) {
@@ -119,57 +124,57 @@ const Profile = () => {
     };
 
     return (
-        <form onSubmit={handleProfileUpdate}>
-            <div className="flex-grow place-content-center">
-                <div className="flex items-center justify-center py-6">
-                    <Card className="w-full max-w-lg mx-auto">
-                        <CardHeader>
-                            <CardTitle>Profile</CardTitle>
-                            <CardDescription>Update your profile information.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="flex items-center space-x-4 justify-center">
-                                <Avatar className="h-24 w-24">
-                                    {avatarPreview ? (
-                                        <AvatarImage src={avatarPreview} alt="User avatar" />
+        <div className="flex-grow place-content-center">
+            <div className="flex items-center justify-center py-6">
+                <Card className="w-full max-w-lg mx-auto">
+                    <CardHeader>
+                        <CardTitle>Profile</CardTitle>
+                        <CardDescription>Update your profile information.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="flex items-center space-x-4 justify-center">
+                            <Avatar className="h-24 w-24">
+                                {avatarPreview ? (
+                                    <AvatarImage src={avatarPreview} alt="User avatar" />
+                                ) : (
+                                    avatar ? (
+                                        <AvatarImage src={`http://localhost:5510/uploads/${avatar}`} alt="User avatar" />
                                     ) : (
-                                        avatar ? (
-                                            <AvatarImage src={`http://localhost:5510/uploads/${avatar}`} alt="User avatar" />
-                                        ) : (
-                                            <AvatarFallback>{name.charAt(0)}</AvatarFallback>
-                                        )
-                                    )}
-                                </Avatar>
-                                <Button variant="outline" onClick={() => setChangeAvatar(!changeAvatar)}>
-                                    Change Avatar
+                                        <AvatarFallback>{name.charAt(0)}</AvatarFallback>
+                                    )
+                                )}
+                            </Avatar>
+                            <Button variant="outline" onClick={() => setChangeAvatar(!changeAvatar)}>
+                                Change Avatar
+                            </Button>
+                        </div>
+                        {changeAvatar && (
+                            <div className="mt-4">
+                                <Label htmlFor="avatar">Upload New Avatar</Label>
+                                <Input id="avatar" type="file" onChange={handleFileChange} />
+                                <Button onClick={changeAvatarHandler} className="mt-2">
+                                    Save Avatar
                                 </Button>
                             </div>
-                            {changeAvatar && (
-                                <div className="mt-4">
-                                    <Label htmlFor="avatar">Upload New Avatar</Label>
-                                    <Input id="avatar" type="file" onChange={handleFileChange} />
-                                    <Button onClick={changeAvatarHandler} className="mt-2">
-                                        Save Avatar
-                                    </Button>
-                                </div>
-                            )}
-                            <div className="mt-4 space-y-2">
+                        )}
+                        <form onSubmit={handleProfileUpdate} className="mt-4 space-y-6">
+                            <div className="space-y-2">
                                 <Label htmlFor="name">Name</Label>
                                 <Input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your name" />
                             </div>
-                            <div className="mt-4 space-y-2">
+                            <div className="space-y-2">
                                 <Label htmlFor="email">Email</Label>
                                 <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email" />
                             </div>
-                            <div className="mt-4 space-y-2">
+                            <div className="space-y-2">
                                 <Label htmlFor="currentPassword">Current Password</Label>
                                 <Input id="currentPassword" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="Enter your current password" />
                             </div>
-                            <div className="mt-4 space-y-2">
+                            <div className="space-y-2">
                                 <Label htmlFor="newPassword">New Password</Label>
                                 <Input id="newPassword" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter a new password" />
                             </div>
-                            <div className="mt-4 space-y-2">
+                            <div className="space-y-2">
                                 <Label htmlFor="confirmPassword">Confirm Password</Label>
                                 <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Confirm your new password" />
                             </div>
@@ -179,16 +184,16 @@ const Profile = () => {
                                     <span className="block sm:inline"> {error}</span>
                                 </div>
                             )}
-                        </CardContent>
-                        <CardFooter>
-                            <Button className="ml-auto" type="submit">
-                                Save Changes
-                            </Button>
-                        </CardFooter>
-                    </Card>
-                </div>
+                            <CardFooter>
+                                <Button className="ml-auto" type="submit">
+                                    Save Changes
+                                </Button>
+                            </CardFooter>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
-        </form>
+        </div>
     );
 };
 

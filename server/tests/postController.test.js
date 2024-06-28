@@ -1,5 +1,4 @@
-const { getPosts, createPost } = require('../controllers/postControllers');
-const { getPost } = require('../controllers/postControllers');
+const { getPosts, createPost, getPost, editPost } = require('../controllers/postControllers');
 const Post = require('../models/postModel');
 const HttpError = require('../models/errorModel');
 
@@ -166,36 +165,38 @@ describe('Post Controller', () => {
         });
     });
 
-    it('should get a post successfully', async () => {
-        const mockPost = {
-            id: '1',
-            title: 'Test Post',
-            category: 'Art',
-            desc: 'Test Description',
-            thumbnail: 'test-thumbnail.png',
-            updatedAt: new Date(),
-        };
+    describe('Post Controller', () => {
+        describe('getPost', () => {
+            it('should get a post successfully', async () => {
+                const mockPost = {
+                    id: '1',
+                    title: 'Test Post',
+                    category: 'Art',
+                    desc: 'Test Description',
+                    thumbnail: 'test-thumbnail.png',
+                    updatedAt: new Date(),
+                };
 
-        const req = {
-            params: {
-                id: '1',
-            },
-        };
+                const req = {
+                    params: {
+                        id: '1',
+                    },
+                };
 
-        const res = {
-            status: jest.fn().mockReturnThis(),
-            json: jest.fn(),
-        };
+                const res = {
+                    status: jest.fn().mockReturnThis(),
+                    json: jest.fn(),
+                };
 
-        jest.spyOn(Post, 'findById').mockResolvedValue(mockPost);
+                jest.spyOn(Post, 'findById').mockResolvedValue(mockPost);
 
-        await getPost(req, res);
+                await getPost(req, res);
 
-        expect(Post.findById).toHaveBeenCalledWith('1');
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith(mockPost);
+                expect(Post.findById).toHaveBeenCalledWith('1');
+                expect(res.status).toHaveBeenCalledWith(200);
+                expect(res.json).toHaveBeenCalledWith(mockPost);
+            });
+        });
     });
-
     
-
 });

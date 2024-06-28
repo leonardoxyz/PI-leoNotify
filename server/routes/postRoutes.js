@@ -1,14 +1,13 @@
 const { Router } = require('express');
-const { createPost, getPosts, getPost, getAuthorPost, editPost, deletePost, getCategoryPost } = require('../controllers/postControllers')
+const { createPost, getPosts, getPost, editPost, deletePost, getCategoryPost } = require('../controllers/postControllers')
 const router = Router()
 const authMiddleware = require('../middleware/authMiddleware')
 const commentRoutes = require('./commentRoutes')
-const { createComment, deleteComment } = require('../controllers/CommentControllers')
+const { createComment, deleteComment } = require('../controllers/commentControllers')
 
 router.post("/", authMiddleware, createPost);
 router.get("/", getPosts);
 router.get("/:id", getPost);
-router.get("/users/:id", getAuthorPost);
 router.patch("/:id", authMiddleware, editPost);
 router.delete("/:id", authMiddleware, deletePost);
 router.get("/categories/:category", getCategoryPost);

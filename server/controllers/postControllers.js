@@ -203,58 +203,6 @@ const getPost = async (req, res, next) => {
 
 /**
  * @swagger
- * /api/posts/author/{id}:
- *   get:
- *     summary: Return posts by author ID
- *     tags:
- *       - Posts
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID of the author whose posts will be returned
- *     responses:
- *       200:
- *         description: List of posts found for the specified author
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   _id:
- *                     type: string
- *                   title:
- *                     type: string
- *                   category:
- *                     type: string
- *                   desc:
- *                     type: string
- *                   thumbnail:
- *                     type: string
- *                   creator:
- *                     type: string
- *       404:
- *         description: Post not found
- *       500:
- *         description: Server error
- */
-const getAuthorPost = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const posts = await Post.find({ creator: id }).sort({ createdAt: -1 });
-
-        res.status(200).json(posts);
-    } catch (error) {
-        return next(new HttpError(error));
-    }
-};
-
-/**
- * @swagger
  * /api/posts/{id}:
  *   patch:
  *     summary: Update a post by post ID
@@ -485,7 +433,6 @@ module.exports = {
     createPost,
     getPosts,
     getPost,
-    getAuthorPost,
     editPost,
     deletePost,
     getCategoryPost

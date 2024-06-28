@@ -11,7 +11,6 @@ import Login from './Pages/Login/Login';
 import Profile from './Pages/Profile/Profile';
 import CreatePost from './Pages/Create/CreatePost';
 import CategoryPosts from './Pages/Category/CategoryPosts';
-import AuthorPost from './Pages/AuthorPost/AuthorPost';
 import Dashboard from './Pages/Dashboard/Dashboard';
 import EditPost from './Pages/Edit/EditPost';
 import Logout from './Pages/Logout/Logout';
@@ -30,7 +29,6 @@ const router = createBrowserRouter([
       { path: "profile/:id", element: <Profile /> },
       { path: "create", element: <CreatePost /> },
       { path: "posts/categories/:category", element: <CategoryPosts /> },
-      { path: "posts/users/:id", element: <AuthorPost /> },
       { path: "myposts/:id", element: <Dashboard /> },
       { path: "posts/:id/edit", element: <EditPost /> },
       { path: "logout", element: <Logout /> },
