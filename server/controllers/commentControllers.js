@@ -85,8 +85,6 @@ const createComment = async (req, res, next) => {
     }
 };
 
-
-
 /**
  * @swagger
  * /api/posts/{postId}/comments/{id}:
@@ -167,7 +165,6 @@ const deleteComment = async (req, res, next) => {
         return next(new HttpError('Deleting comment failed, please try again', 500));
     }
 };
-
 
 module.exports = {
     createComment,
