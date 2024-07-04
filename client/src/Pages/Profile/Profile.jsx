@@ -105,12 +105,18 @@ const Profile = () => {
             const res = await updateProfile(updatedData);
 
             if (res.status === 200) {
-                toast.success('Profile updated successfully');
-                toast.success('Your actual password is: '+ newPassword);
-                navigate('/logout');
+                if (newPassword.valueOf != null && newPassword.valueOf != '' && newPassword) {
+                    toast.success('Profile updated successfully');
+                    toast.success('Your actual password is: ' + newPassword);
+                    navigate('/logout');
+                } else {
+                    toast.error('You need to enter your current password to change your profile');
+                }
             }
+
         } catch (error) {
             handleRequestError(error);
+            toast.error('Failed to update profile');
         }
     };
 
@@ -184,11 +190,9 @@ const Profile = () => {
                                     <span className="block sm:inline"> {error}</span>
                                 </div>
                             )}
-                            <CardFooter>
-                                <Button className="ml-auto" type="submit">
-                                    Save Changes
-                                </Button>
-                            </CardFooter>
+                            <Button type="submit">
+                                Save Changes
+                            </Button>
                         </form>
                     </CardContent>
                 </Card>
