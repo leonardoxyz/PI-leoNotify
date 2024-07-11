@@ -37,7 +37,7 @@ const Detail = () => {
                 setPost(response.data);
                 setComments(response.data.comments);
 
-                const authorIds = response.data.comments.map(comment => comment.author);
+                const authorIds = [response.data.creator, ...response.data.comments.map(comment => comment.author)];
                 const uniqueAuthorIds = [...new Set(authorIds)];
 
                 const fetchedAuthors = {};
@@ -214,18 +214,27 @@ const Detail = () => {
                             <h2 className="text-3xl font-bold">Discussion</h2>
                             <p className="text-gray-500 dark:text-gray-400">Share your thoughts and engage with the community.</p>
                         </div>
+                        {currentUser ? (
+                            <></>
+                        ) : (
+                            <Link to="/login">
+                                <Button>Login to Comment</Button>
+                            </Link>
+                        )}
                     </div>
-                    <form onSubmit={handleSubmitComment} className="grid gap-4">
-                        <Textarea
-                            placeholder="Write your comment here..."
-                            className="min-h-[120px] resize-none"
-                            value={commentText}
-                            onChange={(e) => setCommentText(e.target.value)}
-                        />
-                        <div className="flex justify-end">
-                            <Button type="submit">Submit</Button>
-                        </div>
-                    </form>
+                    {currentUser && (
+                            <form onSubmit={handleSubmitComment} className="grid gap-4">
+                                <Textarea
+                                    placeholder="Write your comment here..."
+                                    className="min-h-[120px] resize-none"
+                                    value={commentText}
+                                    onChange={(e) => setCommentText(e.target.value)}
+                                />
+                                <div className="flex justify-end">
+                                    <Button type="submit">Submit</Button>
+                                </div>
+                            </form>
+                    )}
                 </div>
                 <div className="space-y-6">
                     {comments.map(comment => (

@@ -34,7 +34,8 @@ const postSchema = new Schema({
     desc: { type: String, required: true },
     creator: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     thumbnail: { type: String, required: true },
-    comments: [commentSchema], 
+    comments: [commentSchema],
+    likes: [{ type: Schema.Types.ObjectId, ref: 'Like' }],
 }, { timestamps: true });
 
 module.exports = model('Post', postSchema);

@@ -84,7 +84,7 @@ const Login = () => {
                         </Button>
                         <div className="text-center text-sm text-gray-500 dark:text-gray-400">
                             Don't have an account?{" "}
-                            <Link to="#" className="font-medium text-blue-500 hover:underline" prefetch={false}>
+                            <Link to="/register" className="font-medium text-blue-500 hover:underline uppercase" prefetch={false}>
                                 Sign up
                             </Link>
                         </div>

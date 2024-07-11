@@ -47,11 +47,11 @@ const Register = () => {
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="full-name">Full Name</Label>
-                            <Input id="full-name" placeholder="John Doe" required value={userData.name} onChange={changeInputHandler} name="name" />
+                            <Input id="full-name" placeholder="Junior" required value={userData.name} onChange={changeInputHandler} name="name" />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="email">Email Address</Label>
-                            <Input id="email" type="email" placeholder="m@example.com" required value={userData.email} onChange={changeInputHandler} name="email" />
+                            <Input id="email" type="email" placeholder="Junior@example.com" required value={userData.email} onChange={changeInputHandler} name="email" />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="password">Password</Label>
@@ -64,8 +64,8 @@ const Register = () => {
                         <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white">
                             Create Account
                         </Button>
-                        <div className='flex items-center justify-center'>
-                            <small>Already have an account?&ensp;</small>
+                        <div className='flex items-center'>
+                            <small className="text-center text-sm text-gray-500 dark:text-gray-400">Already have an account?&ensp;</small>
                             <Link className='font-bold text-blue-500' to="/login">SIGN IN</Link>
                         </div>
                         {error && <p className='text-red-500'>{error}</p>}
